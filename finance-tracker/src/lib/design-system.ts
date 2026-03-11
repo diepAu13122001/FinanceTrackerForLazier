@@ -1,6 +1,3 @@
-// Design System — các bundle class Tailwind có thể tái sử dụng
-// Cách dùng: <div className={DS.card}>...</div>
-
 export const DS = {
   // Layout
   card: "bg-surface rounded-xl border border-surface-border p-6 shadow-sm",
@@ -29,7 +26,7 @@ export const DS = {
     "bg-primary-500 text-white text-sm font-medium",
     "px-4 py-2",
     "hover:bg-primary-600 active:bg-primary-700",
-    "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+    "focus-visible:outline-none focus:ring-2 focus:ring-primary-500",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     "transition-colors duration-150",
   ].join(" "),
@@ -39,8 +36,9 @@ export const DS = {
     "bg-transparent text-text-secondary text-sm font-medium",
     "px-4 py-2",
     "hover:bg-surface-muted hover:text-text-primary",
-    "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+    "focus-visible:outline-none focus:ring-2 focus:ring-primary-500",
     "transition-colors duration-150",
+    "outline-none",
   ].join(" "),
 
   btnDanger: [
@@ -48,9 +46,10 @@ export const DS = {
     "bg-danger-500 text-white text-sm font-medium",
     "px-4 py-2",
     "hover:bg-danger-600 active:bg-danger-700",
-    "focus:outline-none focus:ring-2 focus:ring-danger-500 focus:ring-offset-2",
+    "focus-visible:outline-none focus:ring-2 focus:ring-danger-500",
     "disabled:opacity-50 disabled:cursor-not-allowed",
     "transition-colors duration-150",
+    "outline-none",
   ].join(" "),
 
   // Đặc biệt: gradient vàng cho các CTA nâng cấp
@@ -59,9 +58,10 @@ export const DS = {
     "bg-gradient-to-r from-amber-400 to-yellow-500 text-white text-sm font-semibold",
     "px-4 py-2",
     "hover:from-amber-500 hover:to-yellow-600",
-    "focus:outline-none focus:ring-2 focus:ring-amber-400 focus:ring-offset-2",
+    "focus-visible:outline-none focus:ring-2 focus:ring-amber-400",
     "shadow-md shadow-amber-200",
     "transition-all duration-150",
+    "outline-none",
   ].join(" "),
 
   // Badges

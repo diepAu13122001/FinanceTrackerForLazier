@@ -1,9 +1,7 @@
-import { Input } from './components/shared/Input'
 import { Search, Mail } from 'lucide-react'
-import { Card } from './components/shared/Card'
-import { Button } from './components/shared/Button'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Download } from 'lucide-react'
+import { Input, Card, Button } from './components/shared'
 
 
 function App() {

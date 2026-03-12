@@ -4,7 +4,7 @@ import type { PlanId, Feature } from "@/types/plans";
 // ─── Tạm thời hardcode — Tuần 2 sẽ thay bằng authStore ───────────────────────
 // Hiện tại chưa có backend/auth, dùng biến này để test
 // Đổi thành 'FREE' | 'PLUS' | 'PREMIUM' để xem UI thay đổi
-const MOCK_PLAN: PlanId = "PREMIUM";
+const MOCK_PLAN: PlanId = "PREMIUM" as PlanId;
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
 
@@ -17,9 +17,9 @@ export const usePlan = () => {
     plan,
 
     // Shorthand kiểm tra gói
-    isFree: (plan as PlanId) === "FREE",
+    isFree: plan === "FREE",
     isPlus: PLAN_LEVELS[plan] >= PLAN_LEVELS["PLUS"],
-    isPremium: (plan as PlanId) === "PREMIUM",
+    isPremium: plan === "PREMIUM",
 
     // Kiểm tra một tính năng cụ thể
     canUse: (feature: Feature) => canUseFeature(plan, feature),

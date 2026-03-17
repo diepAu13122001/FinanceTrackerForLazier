@@ -1,36 +1,27 @@
-import { PlanGate, UpgradePrompt, LockedBadge, Card } from './components/shared'
+import { lazy, Suspense } from 'react'
+import { Routes, Route } from 'react-router-dom'
+import { DS } from '@/lib/design-system'
+
+const DevKit = lazy(() => import('@/pages/DevKit'))
 
 function App() {
   return (
-    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <Suspense
+      fallback={
+        <div className="h-screen flex items-center justify-center">
+          <p className={DS.muted}>Đang tải...</p>
+        </div>
+      }
+    >
+      <Routes>
+        <Route path="/" element={<div className="p-8"><h1 className={DS.heading1}>Home</h1></div>} />
 
-      {/* Test 1: PlanGate — đổi MOCK_PLAN trong usePlan.ts để xem thay đổi */}
-      <PlanGate requires="PLUS">
-        <Card><p>✅ Bạn thấy được card này = đang dùng gói Plus trở lên</p></Card>
-      </PlanGate>
-
-      {/* Test 2: UpgradePrompt trực tiếp */}
-      <UpgradePrompt requiredPlan="PLUS" />
-      <UpgradePrompt requiredPlan="PREMIUM" />
-
-      {/* Test 3: Inline layout */}
-      <UpgradePrompt requiredPlan="PLUS" layout="inline" />
-
-      {/* Test 4: LockedBadge */}
-      <div style={{ display: 'flex', gap: 8 }}>
-        <LockedBadge requiredPlan="PLUS" />
-        <LockedBadge requiredPlan="PREMIUM" />
-      </div>
-
-      {/* Test 5: PlanGate với fallback tùy chỉnh */}
-      <PlanGate
-        requires="PREMIUM"
-        fallback={<p style={{ color: 'gray' }}>🔒 Cần Premium để xem phần này</p>}
-      >
-        <p>Nội dung Premium</p>
-      </PlanGate>
-
-    </div>
+        {/* Chỉ hiện trong development — ẩn hoàn toàn khi build production */}
+        {import.meta.env.DEV && (
+          <Route path="/dev" chore: DevKit preview pageelement={<DevKit />} />
+        )}
+      </Routes>
+    </Suspense>
   )
 }
 

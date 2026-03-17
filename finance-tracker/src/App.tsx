@@ -18,7 +18,7 @@ function App() {
 
         {/* Chỉ hiện trong development — ẩn hoàn toàn khi build production */}
         {import.meta.env.DEV && (
-          <Route path="/dev" chore: DevKit preview pageelement={<DevKit />} />
+          <Route path="/dev" element={<DevKit />} />
         )}
       </Routes>
     </Suspense>

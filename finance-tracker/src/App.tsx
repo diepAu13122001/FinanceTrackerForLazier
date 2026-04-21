@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { DS } from '@/lib/design-system'
 
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const DevKit = lazy(() => import('@/pages/DevKit'))
 
 function App() {
@@ -15,8 +16,8 @@ function App() {
     >
       <Routes>
         <Route path="/" element={<div className="p-8"><h1 className={DS.heading1}>Home</h1></div>} />
+        <Route path="/login" element={<LoginPage />} />
 
-        {/* Chỉ hiện trong development — ẩn hoàn toàn khi build production */}
         {import.meta.env.DEV && (
           <Route path="/dev" element={<DevKit />} />
         )}
@@ -25,4 +26,4 @@ function App() {
   )
 }
 
-export default App;
+export default App

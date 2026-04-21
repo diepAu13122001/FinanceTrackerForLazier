@@ -135,3 +135,4 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 -- KIEM TRA DB TABLE
 -- ────────────────────────────────────────────────────────────
 SELECT * FROM subscription_plans;
+SELECT * FROM users;

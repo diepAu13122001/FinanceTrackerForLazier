@@ -1,33 +1,28 @@
+import { useAuthStore } from "@/stores/authStore";
 import { canUseFeature, PLAN_LEVELS, PLAN_CONFIG } from "@/types/plans";
 import type { PlanId, Feature } from "@/types/plans";
 
-// ─── Tạm thời hardcode — Tuần 2 sẽ thay bằng authStore ───────────────────────
-// Hiện tại chưa có backend/auth, dùng biến này để test
-// Đổi thành 'FREE' | 'PLUS' | 'PREMIUM' để xem UI thay đổi
-const MOCK_PLAN: PlanId = "PREMIUM" as PlanId;
-
 // ─── Hook ─────────────────────────────────────────────────────────────────────
-
 export const usePlan = () => {
-  // Tuần 2: thay dòng này bằng: const plan = useAuthStore(s => s.user?.subscription?.planId ?? 'FREE')
-  const plan: PlanId = MOCK_PLAN;
+  const planId = useAuthStore((s) => s.user?.planId ?? "FREE") as PlanId;
 
   return {
     // Gói hiện tại
-    plan,
+    plan: planId,
 
     // Shorthand kiểm tra gói
-    isFree: plan === "FREE",
-    isPlus: PLAN_LEVELS[plan] >= PLAN_LEVELS["PLUS"],
-    isPremium: plan === "PREMIUM",
+    isFree: planId === "FREE",
+    isPlus: PLAN_LEVELS[planId] >= PLAN_LEVELS["PLUS"],
+    isPremium: planId === "PREMIUM",
 
     // Kiểm tra một tính năng cụ thể
-    canUse: (feature: Feature) => canUseFeature(plan, feature),
+    canUse: (feature: Feature) => canUseFeature(planId, feature),
 
     // Thông tin gói để hiển thị UI
-    planConfig: PLAN_CONFIG[plan],
+    planConfig: PLAN_CONFIG[planId],
 
     // Kiểm tra có đủ level không (dùng trong PlanGate)
-    hasLevel: (required: PlanId) => PLAN_LEVELS[plan] >= PLAN_LEVELS[required],
+    hasLevel: (required: PlanId) =>
+      PLAN_LEVELS[planId] >= PLAN_LEVELS[required],
   };
 };

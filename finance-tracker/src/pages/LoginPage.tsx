@@ -7,6 +7,7 @@ import { Button } from '@/components/shared/Button'
 import { Input } from '@/components/shared/Input'
 import { DS } from '@/lib/design-system'
 import { authService } from '@/services/authService'
+import { useAuthStore } from '@/stores/authStore'
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -28,6 +29,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 const LoginPage = () => {
     const navigate = useNavigate()
+    const setAuth = useAuthStore(s => s.setAuth)
     const [serverError, setServerError] = useState<string | null>(null)
 
     const {
@@ -49,11 +51,15 @@ const LoginPage = () => {
         try {
             const response = await authService.login(data)
 
-            // Lưu token vào localStorage — interceptor sẽ tự đọc
-            localStorage.setItem('token', response.token)
-
-            // Tuần 2 Day 10: sẽ lưu vào authStore thay vì chỉ localStorage
-            // authStore.setAuth(response)
+            // Lưu token vào authStore
+            setAuth(
+                {
+                    email: response.email,
+                    firstName: response.firstName,
+                    planId: response.planId,
+                },
+                response.token
+            )
 
             navigate('/')
         } catch (error: any) {

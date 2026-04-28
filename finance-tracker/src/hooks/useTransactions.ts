@@ -1,5 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { transactionService } from "@/services/transactionService";
+import {
+  transactionService,
+  type TransactionType,
+} from "@/services/transactionService";
 
 // ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
 export const TRANSACTION_KEYS = {
@@ -24,6 +27,48 @@ export const useTransactionSummary = () => {
   });
 };
 
+// ─── Payload type dùng chung cho create / update ──────────────────────────────
+interface TransactionPayload {
+  type: TransactionType;
+  amount: number;
+  note?: string;
+  transactionDate: string;
+}
+
+// ─── Hook thêm giao dịch ──────────────────────────────────────────────────────
+export const useCreateTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: TransactionPayload) =>
+      transactionService.create(payload),
+
+    // Invalidate cả list lẫn summary để cả 2 tự refetch
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.all });
+    },
+  });
+};
+
+// ─── Hook sửa giao dịch ───────────────────────────────────────────────────────
+export const useUpdateTransaction = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: TransactionPayload;
+    }) => transactionService.update(id, payload),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.all });
+    },
+  });
+};
+
 // ─── Hook xóa giao dịch ───────────────────────────────────────────────────────
 export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
@@ -31,7 +76,6 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: (id: string) => transactionService.delete(id),
 
-    // Sau khi xóa thành công → invalidate cache → tự động refetch
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.all });
     },

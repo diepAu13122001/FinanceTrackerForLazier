@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -6,9 +6,10 @@ import { X } from 'lucide-react'
 import { Button } from '@/components/shared/Button'
 import { Input } from '@/components/shared/Input'
 import { DS } from '@/lib/design-system'
-import { transactionService, type TransactionType } from '@/services/transactionService'
+import { type TransactionType } from '@/services/transactionService'
 import { formatVND, parseVNDInput } from '@/utils/format'
 import { usePlan } from '@/hooks/usePlan'
+import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -37,8 +38,7 @@ type TransactionFormData = z.infer<typeof transactionSchema>
 interface AddTransactionModalProps {
     isOpen: boolean
     onClose: () => void
-    onSuccess: () => void   // callback để refresh danh sách sau khi thêm
-    // Dùng khi edit — truyền vào để pre-fill form
+    onSuccess: () => void
     editData?: {
         id: string
         type: TransactionType
@@ -61,6 +61,10 @@ export const AddTransactionModal = ({
 
     const isEditMode = editData !== null
 
+    // ── Dùng hooks thay vì gọi service trực tiếp ──────────────────────────────
+    const createMutation = useCreateTransaction()
+    const updateMutation = useUpdateTransaction()
+
     const {
         register,
         handleSubmit,
@@ -80,23 +84,38 @@ export const AddTransactionModal = ({
 
     const selectedType = watch('type')
 
+    // Reset form mỗi khi modal mở hoặc editData thay đổi
+    useEffect(() => {
+        if (!isOpen) return
+        reset({
+            type: editData?.type ?? 'EXPENSE',
+            amount: editData?.amount ? editData.amount.toLocaleString('vi-VN') : '',
+            note: editData?.note ?? '',
+            transactionDate: editData?.transactionDate ?? new Date().toISOString().split('T')[0],
+        })
+    }, [isOpen, editData])
+
     // ── Submit ──────────────────────────────────────────────────────────────────
     const onSubmit = async (data: TransactionFormData) => {
         setServerError(null)
+
+        const payload = {
+            type: data.type as TransactionType,
+            amount: parseVNDInput(data.amount),
+            note: data.note || undefined,
+            transactionDate: data.transactionDate,
+        }
+
         try {
-            const payload = {
-                type: data.type as TransactionType,
-                amount: parseVNDInput(data.amount),
-                note: data.note || undefined,
-                transactionDate: data.transactionDate,
-            }
-
             if (isEditMode && editData) {
-                await transactionService.update(editData.id, payload)
+                await updateMutation.mutateAsync({ id: editData.id, payload })
             } else {
-                await transactionService.create(payload)
+                await createMutation.mutateAsync(payload)
             }
 
+            // onSuccess() giờ chỉ để caller xử lý thêm nếu cần
+            // (ví dụ đóng drawer, scroll lên đầu...)
+            // Cache invalidation đã được xử lý trong hook rồi.
             reset()
             onSuccess()
             onClose()
@@ -104,7 +123,6 @@ export const AddTransactionModal = ({
             const errorCode = error.response?.data?.error
             const message = error.response?.data?.message
 
-            // Lỗi giới hạn plan — interceptor chưa redirect vì cần hiện message trước
             if (errorCode === 'PLAN_UPGRADE_REQUIRED') {
                 setServerError('Bạn đã đạt giới hạn 50 giao dịch/tháng. Nâng cấp Plus để tiếp tục.')
             } else {
@@ -116,14 +134,12 @@ export const AddTransactionModal = ({
     if (!isOpen) return null
 
     return (
-        // Backdrop
         <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onClose()
             }}
         >
-            {/* Modal */}
             <div className={`${DS.card} w-full max-w-md relative`}>
 
                 {/* Header */}
@@ -183,7 +199,6 @@ export const AddTransactionModal = ({
                             placeholder="45.000"
                             error={errors.amount?.message}
                             {...register('amount')}
-                            // Format khi blur — người dùng gõ "45000" → hiện "45.000"
                             onBlur={(e) => {
                                 const parsed = parseVNDInput(e.target.value)
                                 if (parsed > 0) {
@@ -191,7 +206,6 @@ export const AddTransactionModal = ({
                                 }
                             }}
                         />
-                        {/* Preview số tiền đã format */}
                         {watch('amount') && parseVNDInput(watch('amount')) > 0 && (
                             <p className="text-xs text-text-muted mt-1">
                                 = {formatVND(parseVNDInput(watch('amount')))}
@@ -242,7 +256,6 @@ export const AddTransactionModal = ({
 // ─── Sub-component: Cảnh báo giới hạn Free ───────────────────────────────────
 
 const TransactionLimitWarning = ({ planId }: { planId: string }) => {
-    // Component này sẽ fetch summary ở Ngày 17 — tạm thời hardcode
     return (
         <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 mb-4">
             <p className="text-xs text-amber-700">

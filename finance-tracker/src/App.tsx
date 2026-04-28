@@ -7,6 +7,7 @@ const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const DevKit = lazy(() => import('@/pages/DevKit'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
+const Dashboard = lazy(() => import('@/pages/Dashboard'))
 
 
 function App() {
@@ -27,12 +28,7 @@ function App() {
 
         {/* Private routes — cần đăng nhập */}
         <Route element={<PrivateRoute />}>
-          <Route path="/" element={
-            <div className="p-8">
-              <h1 className={DS.heading1}>🏠 Dashboard</h1>
-              <p className={DS.muted}>Tuần 3 sẽ xây dựng trang này</p>
-            </div>
-          } />
+          <Route path="/" element={<Dashboard />} />
         </Route>
 
         {/* Redirect các route không tồn tại về home */}

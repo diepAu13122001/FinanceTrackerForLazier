@@ -1,14 +1,20 @@
+import { TransactionList } from '@/components/transactions/TransactionList'
+import { AddTransactionModal } from '@/components/transactions/AddTransactionModal'
+import { useTransactionSummary } from '@/hooks/useTransactions'
 import { useState } from 'react'
 import { Button } from '@/components/shared/Button'
-import { AddTransactionModal } from '@/components/transactions/AddTransactionModal'
 import { DS } from '@/lib/design-system'
+import { formatVND } from '@/utils/format'
 import { Plus } from 'lucide-react'
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
+    const { data: summary } = useTransactionSummary()
 
     return (
-        <div className="p-8 flex flex-col gap-6">
+        <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
+
+            {/* Header */}
             <div className="flex items-center justify-between">
                 <h1 className={DS.heading1}>Dashboard</h1>
                 <Button
@@ -19,13 +25,40 @@ const Dashboard = () => {
                 </Button>
             </div>
 
+            {/* Summary cards */}
+            {summary && (
+                <div className="grid grid-cols-3 gap-4">
+                    <div className={DS.card}>
+                        <p className={DS.muted}>Thu nhập</p>
+                        <p className="text-lg font-bold text-success-600">
+                            {formatVND(summary.totalIncome)}
+                        </p>
+                    </div>
+                    <div className={DS.card}>
+                        <p className={DS.muted}>Chi tiêu</p>
+                        <p className="text-lg font-bold text-danger-600">
+                            {formatVND(summary.totalExpense)}
+                        </p>
+                    </div>
+                    <div className={DS.card}>
+                        <p className={DS.muted}>Số dư</p>
+                        <p className={`text-lg font-bold ${summary.balance >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                            {formatVND(summary.balance)}
+                        </p>
+                    </div>
+                </div>
+            )}
+
+            {/* Danh sách giao dịch */}
+            <TransactionList />
+
+            {/* Modal thêm mới */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSuccess={() => {
-                    console.log('Thêm thành công — Ngày 15 sẽ refresh danh sách')
-                }}
+                onSuccess={() => { }}
             />
+
         </div>
     )
 }

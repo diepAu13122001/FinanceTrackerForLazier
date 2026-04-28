@@ -6,6 +6,8 @@ import { PrivateRoute } from '@/components/shared/PrivateRoute'
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const DevKit = lazy(() => import('@/pages/DevKit'))
+const PricingPage = lazy(() => import('@/pages/PricingPage'))
+
 
 function App() {
   return (
@@ -21,6 +23,7 @@ function App() {
         {/* Public routes — không cần đăng nhập */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/pricing" element={<PricingPage />} />
 
         {/* Private routes — cần đăng nhập */}
         <Route element={<PrivateRoute />}>

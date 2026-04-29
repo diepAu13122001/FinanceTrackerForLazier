@@ -3,6 +3,7 @@ import { api } from "@/lib/api";
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type TransactionType = "INCOME" | "EXPENSE";
+export type FilterType = "ALL" | "INCOME" | "EXPENSE";
 
 export interface TransactionRequest {
   type: TransactionType;
@@ -57,9 +58,16 @@ export const transactionService = {
     return response.data;
   },
 
-  getAll: async (page = 0, size = 20): Promise<TransactionPage> => {
+  getAll: async (
+    page = 0,
+    size = 20,
+    filter: FilterType = "ALL",
+  ): Promise<TransactionPage> => {
+    const params: Record<string, any> = { page, size };
+    if (filter !== "ALL") params.type = filter;
+
     const response = await api.get<TransactionPage>("/api/transactions", {
-      params: { page, size },
+      params,
     });
     return response.data;
   },

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { DS } from '@/lib/design-system'
+// import { DS } from '@/lib/design-system'
 import { LockedBadge } from '@/components/shared/LockedBadge'
 import { usePlan } from '@/hooks/usePlan'
 import {

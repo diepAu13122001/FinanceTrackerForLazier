@@ -2,51 +2,55 @@ import { useState } from 'react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { TransactionItem } from './TransactionItem'
 import { AddTransactionModal } from './AddTransactionModal'
+import { FilterTabs } from './FilterTabs'
 import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
 import { formatDateVI } from '@/utils/format'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { TransactionResponse } from '@/services/transactionService'
+import type { TransactionResponse, FilterType } from '@/services/transactionService'
 
-// ─── Group giao dịch theo ngày ────────────────────────────────────────────────
-const groupByDate = (transactions: TransactionResponse[]) => {
-    return transactions.reduce<Record<string, TransactionResponse[]>>(
-        (groups, transaction) => {
-            const date = transaction.transactionDate
-            return {
-                ...groups,
-                [date]: [...(groups[date] ?? []), transaction],
-            }
-        },
+const groupByDate = (transactions: TransactionResponse[]) =>
+    transactions.reduce<Record<string, TransactionResponse[]>>(
+        (groups, t) => ({
+            ...groups,
+            [t.transactionDate]: [...(groups[t.transactionDate] ?? []), t],
+        }),
         {}
     )
-}
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export const TransactionList = () => {
     const [page, setPage] = useState(0)
+    const [filter, setFilter] = useState<FilterType>('ALL')
     const [editData, setEditData] = useState<TransactionResponse | null>(null)
     const [isModalOpen, setIsModalOpen] = useState(false)
 
-    const { data, isLoading, error, refetch } = useTransactions(page)
+    const { data, isLoading, error, refetch } = useTransactions(page, filter)
 
-    // ── Loading state ───────────────────────────────────────────────────────────
+    // Reset về trang 0 khi đổi filter
+    const handleFilterChange = (newFilter: FilterType) => {
+        setFilter(newFilter)
+        setPage(0)
+    }
+
+    // ── Loading ─────────────────────────────────────────────────────────────────
     if (isLoading) {
         return (
-            <div className={`${DS.card} flex flex-col gap-3`}>
-                {Array.from({ length: 5 }).map((_, i) => (
-                    <div key={i} className="h-14 bg-surface-muted rounded-lg animate-pulse" />
-                ))}
+            <div className="flex flex-col gap-3">
+                <div className="h-9 w-64 bg-surface-muted rounded-lg animate-pulse" />
+                <div className={`${DS.card} flex flex-col gap-3`}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                        <div key={i} className="h-14 bg-surface-muted rounded-lg animate-pulse" />
+                    ))}
+                </div>
             </div>
         )
     }
 
-    // ── Error state ─────────────────────────────────────────────────────────────
+    // ── Error ───────────────────────────────────────────────────────────────────
     if (error) {
         return (
             <div className={DS.card}>
-                <p className="text-danger-600 text-sm">Không thể tải giao dịch.</p>
+                <p className="text-danger-600 text-sm mb-2">Không thể tải giao dịch.</p>
                 <Button variant="ghost" size="sm" onClick={() => refetch()}>
                     Thử lại
                 </Button>
@@ -54,90 +58,135 @@ export const TransactionList = () => {
         )
     }
 
-    // ── Empty state ─────────────────────────────────────────────────────────────
-    if (!data || data.content.length === 0) {
-        return (
-            <div className={`${DS.card} flex flex-col items-center gap-3 py-12`}>
-                <span className="text-4xl">📭</span>
-                <p className={DS.muted}>Chưa có giao dịch nào. Thêm ngay!</p>
-            </div>
-        )
-    }
-
-    const grouped = groupByDate(data.content)
+    const grouped = groupByDate(data?.content ?? [])
     const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
 
     return (
         <>
-            <div className={`${DS.card} flex flex-col gap-1`}>
+            <div className="flex flex-col gap-3">
 
-                {/* Danh sách giao dịch group theo ngày */}
-                {dates.map(date => (
-                    <div key={date}>
+                {/* Filter tabs */}
+                <FilterTabs
+                    active={filter}
+                    onChange={handleFilterChange}
+                />
 
-                        {/* Header ngày */}
-                        <div className="px-4 py-2">
-                            <span className={`${DS.label} text-xs`}>
-                                {formatDateVI(date)}
-                            </span>
-                        </div>
+                {/* Danh sách */}
+                {dates.length === 0 ? (
+                    <div className={`${DS.card} flex flex-col items-center gap-3 py-12`}>
+                        <span className="text-4xl">
+                            {filter === 'INCOME' ? '📈' : filter === 'EXPENSE' ? '📉' : '📭'}
+                        </span>
+                        <p className={DS.muted}>
+                            {filter === 'INCOME'
+                                ? 'Chưa có thu nhập nào.'
+                                : filter === 'EXPENSE'
+                                    ? 'Chưa có chi tiêu nào.'
+                                    : 'Chưa có giao dịch nào. Thêm ngay!'
+                            }
+                        </p>
+                    </div>
+                ) : (
+                    <div className={`${DS.card} flex flex-col gap-1`}>
+                        {dates.map(date => (
+                            <div key={date}>
+                                {/* Header ngày + tổng ngày */}
+                                <DayHeader date={date} transactions={grouped[date]} />
 
-                        {/* Giao dịch trong ngày */}
-                        {grouped[date].map(transaction => (
-                            <TransactionItem
-                                key={transaction.id}
-                                transaction={transaction}
-                                onEdit={(t) => {
-                                    setEditData(t)
-                                    setIsModalOpen(true)
-                                }}
-                            />
+                                {/* Giao dịch trong ngày */}
+                                {grouped[date].map(transaction => (
+                                    <TransactionItem
+                                        key={transaction.id}
+                                        transaction={transaction}
+                                        onEdit={(t) => {
+                                            setEditData(t)
+                                            setIsModalOpen(true)
+                                        }}
+                                    />
+                                ))}
+                            </div>
                         ))}
 
-                    </div>
-                ))}
-
-                {/* Pagination */}
-                {data.totalPages > 1 && (
-                    <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border mt-2">
-                        <span className={DS.muted}>
-                            Trang {data.number + 1} / {data.totalPages}
-                        </span>
-                        <div className="flex gap-2">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={page === 0}
-                                onClick={() => setPage(p => p - 1)}
-                                leftIcon={<ChevronLeft size={14} />}
-                            >
-                                Trước
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                disabled={page >= data.totalPages - 1}
-                                onClick={() => setPage(p => p + 1)}
-                                rightIcon={<ChevronRight size={14} />}
-                            >
-                                Tiếp
-                            </Button>
-                        </div>
+                        {/* Pagination */}
+                        {(data?.totalPages ?? 0) > 1 && (
+                            <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border mt-2">
+                                <span className={DS.muted}>
+                                    Trang {(data?.number ?? 0) + 1} / {data?.totalPages}
+                                </span>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={page === 0}
+                                        onClick={() => setPage(p => p - 1)}
+                                        leftIcon={<ChevronLeft size={14} />}
+                                    >
+                                        Trước
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        disabled={page >= (data?.totalPages ?? 1) - 1}
+                                        onClick={() => setPage(p => p + 1)}
+                                        rightIcon={<ChevronRight size={14} />}
+                                    >
+                                        Tiếp
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 )}
-
             </div>
 
-            {/* Modal edit — dùng lại AddTransactionModal */}
+            {/* Modal edit */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => {
                     setIsModalOpen(false)
                     setEditData(null)
                 }}
-                onSuccess={() => refetch()}
+                onSuccess={() => { }}
                 editData={editData}
             />
         </>
+    )
+}
+
+// ─── Sub-component: Header mỗi ngày + tổng ───────────────────────────────────
+
+const DayHeader = ({
+    date,
+    transactions,
+}: {
+    date: string
+    transactions: TransactionResponse[]
+}) => {
+    // const totalIncome = transactions
+    //     .filter(t => t.type === 'INCOME')
+    //     .reduce((sum, t) => sum + t.amount, 0)
+
+    // const totalExpense = transactions
+    //     .filter(t => t.type === 'EXPENSE')
+    //     .reduce((sum, t) => sum + t.amount, 0)
+
+    return (
+        <div className="flex items-center justify-between px-4 py-2">
+            <span className="text-xs font-medium text-text-muted">
+                {formatDateVI(date)}
+            </span>
+            {/* <div className="flex items-center gap-3 text-xs">
+                {totalIncome > 0 && (
+                    <span className="text-success-600">
+                        +{totalIncome.toLocaleString('vi-VN')}₫
+                    </span>
+                )}
+                {totalExpense > 0 && (
+                    <span className="text-danger-600">
+                        -{totalExpense.toLocaleString('vi-VN')}₫
+                    </span>
+                )}
+            </div> */}
+        </div>
     )
 }

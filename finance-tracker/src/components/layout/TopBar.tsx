@@ -3,6 +3,7 @@ import { usePlan } from '@/hooks/usePlan'
 import { useAuthStore } from '@/stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Settings } from 'lucide-react'
+import { useQueryClient } from '@tanstack/react-query'
 
 // ─── Plan badge màu theo gói ──────────────────────────────────────────────────
 
@@ -23,10 +24,11 @@ const PlanBadge = () => {
 export const TopBar = () => {
     const navigate = useNavigate()
     const user = useAuthStore(s => s.user)
+    const queryClient = useQueryClient()
     const logout = useAuthStore(s => s.logout)
 
     const handleLogout = () => {
-        logout()
+        logout(queryClient) // xóa cache TanStack trước khi logout
         navigate('/login')
     }
 

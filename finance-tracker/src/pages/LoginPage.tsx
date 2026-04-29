@@ -60,7 +60,6 @@ const LoginPage = () => {
                 },
                 response.token
             )
-
             navigate('/')
         } catch (error: any) {
             const message = error.response?.data?.message ?? 'Đăng nhập thất bại, vui lòng thử lại'

@@ -4,19 +4,22 @@ import {
   type TransactionType,
 } from "@/services/transactionService";
 import type { SummaryParams } from "@/services/transactionService";
+import type { FilterType } from "@/services/transactionService";
 
 // ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
 export const TRANSACTION_KEYS = {
   all: ["transactions"] as const,
-  list: (page: number) => ["transactions", "list", page] as const,
-  summary: ["transactions", "summary"] as const,
+  list: (page: number, filter: FilterType) =>
+    ["transactions", "list", page, filter] as const,
+  summary: (params: SummaryParams) =>
+    ["transactions", "summary", params] as const,
 };
 
 // ─── Hook lấy danh sách giao dịch ─────────────────────────────────────────────
-export const useTransactions = (page = 0) => {
+export const useTransactions = (page = 0, filter: FilterType = "ALL") => {
   return useQuery({
-    queryKey: TRANSACTION_KEYS.list(page),
-    queryFn: () => transactionService.getAll(page),
+    queryKey: TRANSACTION_KEYS.list(page, filter),
+    queryFn: () => transactionService.getAll(page, 20, filter),
   });
 };
 
@@ -65,7 +68,7 @@ export const useUpdateTransaction = () => {
     }) => transactionService.update(id, payload),
 
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: TRANSACTION_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["transaction"] });
     },
   });
 };

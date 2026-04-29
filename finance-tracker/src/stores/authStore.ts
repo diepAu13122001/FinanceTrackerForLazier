@@ -16,7 +16,7 @@ interface AuthState {
 
   // Actions
   setAuth: (user: AuthUser, token: string) => void;
-  logout: () => void;
+  logout: (queryClient?: { clear: () => void }) => void;
 
   // Computed helpers
   isLoggedIn: () => boolean;
@@ -35,8 +35,9 @@ export const useAuthStore = create<AuthState>()(
         set({ user, token });
       },
 
-      logout: () => {
+      logout: (queryClient) => {
         localStorage.removeItem("token");
+        queryClient?.clear(); // xóa toàn bộ cache TanStack Query
         set({ user: null, token: null });
       },
 

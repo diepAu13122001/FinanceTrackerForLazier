@@ -40,6 +40,12 @@ export interface TransactionSummary {
   limitReached: boolean;
 }
 
+export interface SummaryParams {
+  year?: number;
+  month?: number; // 1-12
+  quarter?: number; // 1-4
+}
+
 // ─── API calls ────────────────────────────────────────────────────────────────
 
 export const transactionService = {
@@ -58,9 +64,14 @@ export const transactionService = {
     return response.data;
   },
 
-  getSummary: async (): Promise<TransactionSummary> => {
+  getSummary: async (
+    params: SummaryParams = {},
+  ): Promise<TransactionSummary> => {
     const response = await api.get<TransactionSummary>(
       "/api/transactions/summary",
+      {
+        params, // axios tự convert thành ?year=2026&month=1
+      },
     );
     return response.data;
   },

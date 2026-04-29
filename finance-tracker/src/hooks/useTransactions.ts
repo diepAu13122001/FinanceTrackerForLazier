@@ -3,6 +3,7 @@ import {
   transactionService,
   type TransactionType,
 } from "@/services/transactionService";
+import type { SummaryParams } from "@/services/transactionService";
 
 // ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
 export const TRANSACTION_KEYS = {
@@ -20,10 +21,10 @@ export const useTransactions = (page = 0) => {
 };
 
 // ─── Hook lấy summary ─────────────────────────────────────────────────────────
-export const useTransactionSummary = () => {
+export const useTransactionSummary = (params: SummaryParams = {}) => {
   return useQuery({
-    queryKey: TRANSACTION_KEYS.summary,
-    queryFn: transactionService.getSummary,
+    queryKey: ["transactions", "summary", params], // cache riêng theo params
+    queryFn: () => transactionService.getSummary(params),
   });
 };
 

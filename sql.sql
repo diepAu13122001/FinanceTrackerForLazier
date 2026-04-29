@@ -136,3 +136,5 @@ FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 -- ────────────────────────────────────────────────────────────
 SELECT * FROM subscription_plans;
 SELECT * FROM users;
+SELECT * FROM user_subscriptions;
+SELECT * FROM transactions;

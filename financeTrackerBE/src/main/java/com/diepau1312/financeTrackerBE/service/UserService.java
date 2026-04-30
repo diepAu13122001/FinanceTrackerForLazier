@@ -5,6 +5,7 @@ import com.diepau1312.financeTrackerBE.entity.User;
 import com.diepau1312.financeTrackerBE.exception.AuthException;
 import com.diepau1312.financeTrackerBE.repository.UserRepository;
 import com.diepau1312.financeTrackerBE.repository.UserSubscriptionRepository;
+import com.diepau1312.financeTrackerBE.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,10 +21,7 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
 
   private User getCurrentUser() {
-    String email = (String) SecurityContextHolder
-        .getContext().getAuthentication().getPrincipal();
-    return userRepository.findByEmail(email)
-        .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
+    return userRepository.findByEmail(SecurityUtil.getCurrentUserEmail()).orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
   }
 
   @Transactional(readOnly = true)
@@ -31,15 +29,7 @@ public class UserService {
     User user = getCurrentUser();
     var sub = subscriptionRepository.findByUserId(user.getId()).orElse(null);
 
-    return UserProfileResponse.builder()
-        .email(user.getEmail())
-        .firstName(user.getFirstName())
-        .lastName(user.getLastName())
-        .planId(sub != null ? sub.getPlanId() : "FREE")
-        .planStatus(sub != null ? sub.getStatus() : "ACTIVE")
-        .expiresAt(sub != null && sub.getExpiresAt() != null
-            ? sub.getExpiresAt().toString() : null)
-        .build();
+    return UserProfileResponse.builder().email(user.getEmail()).firstName(user.getFirstName()).lastName(user.getLastName()).planId(sub != null ? sub.getPlanId() : "FREE").planStatus(sub != null ? sub.getStatus() : "ACTIVE").expiresAt(sub != null && sub.getExpiresAt() != null ? sub.getExpiresAt().toString() : null).build();
   }
 
   @Transactional

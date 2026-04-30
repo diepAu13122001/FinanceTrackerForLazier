@@ -1,5 +1,6 @@
 package com.diepau1312.financeTrackerBE.service;
 
+import com.diepau1312.financeTrackerBE.dto.transaction.DailyChartResponse;
 import com.diepau1312.financeTrackerBE.dto.transaction.TransactionRequest;
 import com.diepau1312.financeTrackerBE.dto.transaction.TransactionResponse;
 import com.diepau1312.financeTrackerBE.dto.transaction.TransactionSummaryResponse;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -230,5 +232,26 @@ public class TransactionService {
         .startDate(startDate)
         .endDate(endDate)
         .build();
+  }
+
+  public List<DailyChartResponse> getDailyChart(Integer year, Integer month) {
+    User user = getCurrentUser();
+    LocalDate today = LocalDate.now();
+    int targetYear = year != null ? year : today.getYear();
+    int targetMonth = month != null ? month : today.getMonthValue();
+
+    LocalDate startDate = LocalDate.of(targetYear, targetMonth, 1);
+    LocalDate endDate = startDate.withDayOfMonth(startDate.lengthOfMonth());
+
+    List<Object[]> rows = transactionRepository.findDailyChartData(
+        user.getId(), startDate, endDate);
+
+    return rows.stream()
+        .map(row -> DailyChartResponse.builder()
+            .date(row[0].toString())
+            .income(row[1] != null ? ((Number) row[1]).longValue() : 0L)
+            .expense(row[2] != null ? ((Number) row[2]).longValue() : 0L)
+            .build())
+        .toList();
   }
 }

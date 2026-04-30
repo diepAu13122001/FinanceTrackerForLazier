@@ -10,6 +10,7 @@ import { type TransactionType } from '@/services/transactionService'
 import { formatVND, parseSmartVNDInput } from '@/utils/format'
 import { usePlan } from '@/hooks/usePlan'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
+import { getErrorMessage, getErrorCode } from '@/utils/errorUtils'
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -119,14 +120,14 @@ export const AddTransactionModal = ({
             reset()
             onSuccess()
             onClose()
-        } catch (error: any) {
-            const errorCode = error.response?.data?.error
-            const message = error.response?.data?.message
+        } catch (error: unknown) {
+            const code = getErrorCode(error)
+            const message = getErrorMessage(error, 'Có lỗi xảy ra, vui lòng thử lại')
 
-            if (errorCode === 'PLAN_UPGRADE_REQUIRED') {
-                setServerError('Bạn đã đạt giới hạn 50 giao dịch/tháng. Nâng cấp Plus để tiếp tục.')
+            if (code === 'PLAN_UPGRADE_REQUIRED') {
+                setServerError('Bạn đã đạt giới hạn 50 giao dịch/tháng.')
             } else {
-                setServerError(message ?? 'Có lỗi xảy ra, vui lòng thử lại')
+                setServerError(message)
             }
         }
     }

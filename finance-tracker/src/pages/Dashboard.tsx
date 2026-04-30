@@ -43,7 +43,7 @@ const Dashboard = () => {
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSuccess={() => { }}
+                onSuccess={() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }}
             />
 
         </div>

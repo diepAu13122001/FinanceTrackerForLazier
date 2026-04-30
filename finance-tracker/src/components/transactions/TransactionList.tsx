@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTransactions } from '@/hooks/useTransactions'
 import { TransactionItem } from './TransactionItem'
 import { AddTransactionModal } from './AddTransactionModal'
 import { FilterTabs } from './FilterTabs'
 import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
-import { formatRelativeDateVI  } from '@/utils/format'
+import { formatRelativeDateVI } from '@/utils/format'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { TransactionResponse, FilterType } from '@/services/transactionService'
 
@@ -58,8 +58,14 @@ export const TransactionList = () => {
         )
     }
 
-    const grouped = groupByDate(data?.content ?? [])
-    const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
+    const grouped = useMemo(
+        () => groupByDate(data?.content ?? []),
+        [data?.content]
+    )
+    const dates = useMemo(
+        () => Object.keys(grouped).sort((a, b) => b.localeCompare(a)),
+        [grouped]
+    )
 
     return (
         <>

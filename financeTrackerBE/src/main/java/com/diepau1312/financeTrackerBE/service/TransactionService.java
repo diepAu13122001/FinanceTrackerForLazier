@@ -1,9 +1,6 @@
 package com.diepau1312.financeTrackerBE.service;
 
-import com.diepau1312.financeTrackerBE.dto.transaction.DailyChartResponse;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionRequest;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionResponse;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionSummaryResponse;
+import com.diepau1312.financeTrackerBE.dto.transaction.*;
 import com.diepau1312.financeTrackerBE.entity.Transaction;
 import com.diepau1312.financeTrackerBE.entity.User;
 import com.diepau1312.financeTrackerBE.exception.PlanUpgradeRequiredException;
@@ -20,7 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -252,6 +252,41 @@ public class TransactionService {
             .income(row[1] != null ? ((Number) row[1]).longValue() : 0L)
             .expense(row[2] != null ? ((Number) row[2]).longValue() : 0L)
             .build())
+        .toList();
+  }
+
+  public List<MonthlyChartResponse> getMonthlyChart(Integer year) {
+    User user = getCurrentUser();
+    int targetYear = year != null ? year : LocalDate.now().getYear();
+
+    List<Object[]> rows = transactionRepository.findMonthlyChartData(
+        user.getId(), targetYear);
+
+    // Tạo map để fill các tháng không có data = 0
+    Map<Integer, Object[]> rowMap = rows.stream()
+        .collect(Collectors.toMap(
+            row -> ((Number) row[0]).intValue(),
+            row -> row
+        ));
+
+    String[] labels = {"Th1", "Th2", "Th3", "Th4", "Th5", "Th6",
+        "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"};
+
+    return IntStream.rangeClosed(1, 12)
+        .mapToObj(m -> {
+          Object[] row = rowMap.get(m);
+          long income = row != null && row[1] != null
+              ? ((Number) row[1]).longValue() : 0L;
+          long expense = row != null && row[2] != null
+              ? ((Number) row[2]).longValue() : 0L;
+          return MonthlyChartResponse.builder()
+              .month(m)
+              .label(labels[m - 1])
+              .income(income)
+              .expense(expense)
+              .balance(income - expense)
+              .build();
+        })
         .toList();
   }
 }

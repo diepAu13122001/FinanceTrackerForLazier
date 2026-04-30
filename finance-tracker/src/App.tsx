@@ -10,6 +10,7 @@ const RegisterPage = lazy(() => import('@/pages/RegisterPage'))
 const PricingPage = lazy(() => import('@/pages/PricingPage'))
 const DevKit = lazy(() => import('@/pages/DevKit'))
 const ExpensesPage = lazy(() => import('@/pages/ExpensesPage'))
+const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage'))
 
 
 // Placeholder pages — sẽ xây dựng ở các ngày tiếp theo
@@ -40,8 +41,7 @@ function App() {
           <Route element={<AppLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/expenses" element={<ExpensesPage />} />
-            <Route path="/analytics" element={<PlaceholderPage title="📊 Phân tích" />} />
-            <Route path="/goals" element={<PlaceholderPage title="🎯 Mục tiêu" />} />
+            <Route path="/analytics" element={<AnalyticsPage />} />            <Route path="/goals" element={<PlaceholderPage title="🎯 Mục tiêu" />} />
             <Route path="/ai" element={<PlaceholderPage title="🤖 AI Assistant" />} />
             <Route path="/household" element={<PlaceholderPage title="🏠 Đồ dùng" />} />
             <Route path="/settings" element={<PlaceholderPage title="⚙️ Cài đặt" />} />

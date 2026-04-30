@@ -13,6 +13,14 @@ export interface MonthlyChartData {
   expense: number;
 }
 
+export interface MonthlyChartData {
+  month: number;
+  label: string;
+  income: number;
+  expense: number;
+  balance: number;
+}
+
 export const chartService = {
   getDaily: async (
     year?: number,
@@ -22,6 +30,15 @@ export const chartService = {
       "/api/transactions/chart/daily",
       {
         params: { year, month },
+      },
+    );
+    return response.data;
+  },
+  getMonthly: async (year?: number): Promise<MonthlyChartData[]> => {
+    const response = await api.get<MonthlyChartData[]>(
+      "/api/transactions/chart/monthly",
+      {
+        params: { year },
       },
     );
     return response.data;

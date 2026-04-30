@@ -1,9 +1,6 @@
 package com.diepau1312.financeTrackerBE.controller;
 
-import com.diepau1312.financeTrackerBE.dto.transaction.DailyChartResponse;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionRequest;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionResponse;
-import com.diepau1312.financeTrackerBE.dto.transaction.TransactionSummaryResponse;
+import com.diepau1312.financeTrackerBE.dto.transaction.*;
 import com.diepau1312.financeTrackerBE.service.TransactionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -76,5 +73,12 @@ public class TransactionController {
       @RequestParam(required = false) Integer month
   ) {
     return ResponseEntity.ok(transactionService.getDailyChart(year, month));
+  }
+
+  @GetMapping("/chart/monthly")
+  public ResponseEntity<List<MonthlyChartResponse>> getMonthlyChart(
+      @RequestParam(required = false) Integer year
+  ) {
+    return ResponseEntity.ok(transactionService.getMonthlyChart(year));
   }
 }

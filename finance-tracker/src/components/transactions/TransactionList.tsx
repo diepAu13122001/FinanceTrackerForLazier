@@ -5,7 +5,7 @@ import { AddTransactionModal } from './AddTransactionModal'
 import { FilterTabs } from './FilterTabs'
 import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
-import { formatDateVI } from '@/utils/format'
+import { formatRelativeDateVI  } from '@/utils/format'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { TransactionResponse, FilterType } from '@/services/transactionService'
 
@@ -173,7 +173,7 @@ const DayHeader = ({
     return (
         <div className="flex items-center justify-between px-4 py-2">
             <span className="text-xs font-medium text-text-muted">
-                {formatDateVI(date)}
+                {formatRelativeDateVI(date)}
             </span>
             {/* <div className="flex items-center gap-3 text-xs">
                 {totalIncome > 0 && (

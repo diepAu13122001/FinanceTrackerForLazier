@@ -7,7 +7,7 @@ import { Button } from '@/components/shared/Button'
 import { Input } from '@/components/shared/Input'
 import { DS } from '@/lib/design-system'
 import { type TransactionType } from '@/services/transactionService'
-import { formatVND, parseVNDInput } from '@/utils/format'
+import { formatVND, parseSmartVNDInput } from '@/utils/format'
 import { usePlan } from '@/hooks/usePlan'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 
@@ -20,7 +20,7 @@ const transactionSchema = z.object({
         .string()
         .min(1, 'Số tiền không được để trống')
         .refine(
-            val => parseVNDInput(val) > 0,
+            val => parseSmartVNDInput(val) > 0,
             'Số tiền phải lớn hơn 0'
         ),
 
@@ -101,7 +101,7 @@ export const AddTransactionModal = ({
 
         const payload = {
             type: data.type as TransactionType,
-            amount: parseVNDInput(data.amount),
+            amount: parseSmartVNDInput(data.amount),
             note: data.note || undefined,
             transactionDate: data.transactionDate,
         }
@@ -200,15 +200,15 @@ export const AddTransactionModal = ({
                             error={errors.amount?.message}
                             {...register('amount')}
                             onBlur={(e) => {
-                                const parsed = parseVNDInput(e.target.value)
+                                const parsed = parseSmartVNDInput(e.target.value)
                                 if (parsed > 0) {
                                     setValue('amount', parsed.toLocaleString('vi-VN'))
                                 }
                             }}
                         />
-                        {watch('amount') && parseVNDInput(watch('amount')) > 0 && (
+                        {watch('amount') && parseSmartVNDInput(watch('amount')) > 0 && (
                             <p className="text-xs text-text-muted mt-1">
-                                = {formatVND(parseVNDInput(watch('amount')))}
+                                = {formatVND(parseSmartVNDInput(watch('amount')))}
                             </p>
                         )}
                     </div>

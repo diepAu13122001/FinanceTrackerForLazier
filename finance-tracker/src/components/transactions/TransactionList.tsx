@@ -32,6 +32,16 @@ export const TransactionList = () => {
         setPage(0)
     }
 
+    const grouped = useMemo(
+        () => groupByDate(data?.content ?? []),
+        [data?.content]
+    )
+    const dates = useMemo(
+        () => Object.keys(grouped).sort((a, b) => b.localeCompare(a)),
+        [grouped]
+    )
+
+
     // ── Loading ─────────────────────────────────────────────────────────────────
     if (isLoading) {
         return (
@@ -58,14 +68,6 @@ export const TransactionList = () => {
         )
     }
 
-    const grouped = useMemo(
-        () => groupByDate(data?.content ?? []),
-        [data?.content]
-    )
-    const dates = useMemo(
-        () => Object.keys(grouped).sort((a, b) => b.localeCompare(a)),
-        [grouped]
-    )
 
     return (
         <>

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { notify, TOAST_MESSAGES } from "@/lib/toast";
 
 // ─── Tạo Axios instance với config mặc định ───────────────────────────────────
 // axios.create() -> trả về một instnace mới của axios với config mặc định
@@ -41,6 +42,7 @@ api.interceptors.response.use(
 
     // 401 — token hết hạn hoặc không hợp lệ → tự động logout
     if (status === 401) {
+      notify.error(TOAST_MESSAGES.auth.sessionExpired);
       localStorage.removeItem("token");
       window.location.href = "/login";
       return Promise.reject(error);

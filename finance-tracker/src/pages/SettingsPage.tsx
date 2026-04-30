@@ -12,6 +12,7 @@ import { api } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { User, Lock, CreditCard } from 'lucide-react'
+import { notify, TOAST_MESSAGES } from '@/lib/toast'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -67,16 +68,10 @@ const SettingsPage = () => {
     const updateProfileMutation = useMutation({
         mutationFn: (data: ProfileForm) => api.put('/api/users/me', data),
         onSuccess: (res) => {
-            // Cập nhật authStore để TopBar hiện tên mới ngay
-            if (user) {
-                setAuth(
-                    { ...user, firstName: res.data.firstName },
-                    localStorage.getItem('token')!
-                )
-            }
-            showSuccess('Cập nhật hồ sơ thành công')
+            if (user) setAuth({ ...user, firstName: res.data.firstName }, localStorage.getItem('token')!)
+            notify.success(TOAST_MESSAGES.auth.profileUpdated)
         },
-        onError: () => showError('Cập nhật thất bại'),
+        onError: () => notify.error('Cập nhật thất bại'),
     })
 
     // ── Password form ───────────────────────────────────────────────────────────
@@ -91,10 +86,10 @@ const SettingsPage = () => {
         }),
         onSuccess: () => {
             passwordForm.reset()
-            showSuccess('Đổi mật khẩu thành công')
+            notify.success(TOAST_MESSAGES.auth.passwordChanged)
         },
         onError: (err: any) => {
-            showError(err.response?.data?.message ?? 'Đổi mật khẩu thất bại')
+            notify.error(err.response?.data?.message ?? 'Đổi mật khẩu thất bại')
         },
     })
 

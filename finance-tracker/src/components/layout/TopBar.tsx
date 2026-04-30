@@ -4,6 +4,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { useNavigate } from 'react-router-dom'
 import { LogOut, Settings } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
+import { notify, TOAST_MESSAGES } from '@/lib/toast'
 
 // ─── Plan badge màu theo gói ──────────────────────────────────────────────────
 
@@ -27,8 +28,10 @@ export const TopBar = () => {
     const queryClient = useQueryClient()
     const logout = useAuthStore(s => s.logout)
 
+
     const handleLogout = () => {
-        logout(queryClient) // xóa cache TanStack trước khi logout
+        logout(queryClient)
+        notify.success(TOAST_MESSAGES.auth.loggedOut)
         navigate('/login')
     }
 

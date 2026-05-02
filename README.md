@@ -2,12 +2,8 @@
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-<<<<<<< HEAD
-Currently, two official plugins are available:
-=======
 🌐 **Demo:** [finance-tracker.vercel.app](https://finance-tracker-gxdy99t2b-diepau13122001s-projects.vercel.app)  
 📹 **Video demo:** [YouTube](https://youtube.com/...)
->>>>>>> 992636628d27c050e1e3dd388d69aaae55acecf5
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
@@ -76,8 +72,6 @@ export default defineConfig([
   },
 ])
 ```
-<<<<<<< HEAD
-=======
 users ──────────── user_subscriptions ──── subscription_plans
   │                                               (FREE/PLUS/PREMIUM)
   └──── transactions
@@ -177,4 +171,3 @@ Frontend: `<PlanGate requires="PLUS">` component + `usePlan()` hook
 ## 👨‍💻 Tác Giả
 
 **Diệp Âu** — [GitHub](https://github.com/diepau13122001)
->>>>>>> 992636628d27c050e1e3dd388d69aaae55acecf5

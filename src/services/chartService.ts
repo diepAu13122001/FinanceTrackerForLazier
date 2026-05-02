@@ -20,26 +20,28 @@ export interface MonthlyChartData {
   expense: number;
   balance: number;
 }
+export interface DailyChartParams {
+  year?: number;
+  month?: number;
+  startMonth?: number; // dùng khi filter theo quý
+  endMonth?: number;
+}
 
 export const chartService = {
   getDaily: async (
-    year?: number,
-    month?: number,
+    params: DailyChartParams = {},
   ): Promise<DailyChartData[]> => {
     const response = await api.get<DailyChartData[]>(
       "/api/transactions/chart/daily",
-      {
-        params: { year, month },
-      },
+      { params },
     );
     return response.data;
   },
+
   getMonthly: async (year?: number): Promise<MonthlyChartData[]> => {
     const response = await api.get<MonthlyChartData[]>(
       "/api/transactions/chart/monthly",
-      {
-        params: { year },
-      },
+      { params: { year } },
     );
     return response.data;
   },

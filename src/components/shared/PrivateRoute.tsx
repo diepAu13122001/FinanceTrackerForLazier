@@ -1,21 +1,32 @@
 import { Navigate, Outlet } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 
-// ─── PrivateRoute — bảo vệ các trang cần đăng nhập ───────────────────────────
-// Dùng như một wrapper trong App.tsx:
-// <Route element={<PrivateRoute />}>
-//   <Route path="/dashboard" element={<Dashboard />} />
-// </Route>
-
 export const PrivateRoute = () => {
-    const isLoggedIn = useAuthStore(s => s.isLoggedIn())
+    const token = useAuthStore(s => s.token)
+    const user = useAuthStore(s => s.user)
+    const logout = useAuthStore(s => s.logout)
 
-    // Chưa đăng nhập → redirect về login
-    // `replace` để không lưu vào history — nhấn Back không quay lại được trang bị chặn
-    if (!isLoggedIn) {
+    // Có token nhưng đã hết hạn → decode và kiểm tra exp
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]))
+            const isExpired = payload.exp * 1000 < Date.now()
+
+            if (isExpired) {
+                // Token hết hạn → logout ngay lập tức thay vì đợi API call thất bại
+                logout()
+                return <Navigate to="/login" replace />
+            }
+        } catch {
+            // Token format sai → logout
+            logout()
+            return <Navigate to="/login" replace />
+        }
+    }
+
+    if (!token || !user) {
         return <Navigate to="/login" replace />
     }
 
-    // Đã đăng nhập → render route con
     return <Outlet />
 }

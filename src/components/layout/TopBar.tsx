@@ -9,7 +9,7 @@ import { notify, TOAST_MESSAGES } from '@/lib/toast'
 // ─── Plan badge màu theo gói ──────────────────────────────────────────────────
 
 const PlanBadge = () => {
-    const { plan, isFree, isPremium } = usePlan()
+    const { isFree, isPremium } = usePlan()
 
     const config = isFree
         ? { label: 'Free', className: `${DS.badge} bg-surface-border text-text-muted` }

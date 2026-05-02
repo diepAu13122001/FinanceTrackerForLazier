@@ -1,5 +1,6 @@
 import axios from "axios";
 import { notify, TOAST_MESSAGES } from "@/lib/toast";
+import { useAuthStore } from "@/stores/authStore";
 
 // ─── Tạo Axios instance với config mặc định ───────────────────────────────────
 // axios.create() -> trả về một instnace mới của axios với config mặc định
@@ -42,8 +43,11 @@ api.interceptors.response.use(
 
     // 401 — token hết hạn hoặc không hợp lệ → tự động logout
     if (status === 401) {
-      notify.error(TOAST_MESSAGES.auth.sessionExpired);
-      localStorage.removeItem("token");
+      // Xóa cả store — không chỉ localStorage
+      // Gọi trực tiếp store action thay vì chỉ xóa localStorage
+      useAuthStore.getState().logout();
+
+      notify.error("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
       window.location.href = "/login";
       return Promise.reject(error);
     }

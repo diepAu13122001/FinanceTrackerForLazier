@@ -5,34 +5,46 @@ import {
 import { DS } from '@/lib/design-system'
 import { useDailyChart } from '@/hooks/useCharts'
 import { formatShortVND, formatVND } from '@/utils/format'
-import { useState } from 'react'
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
-
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null
 
-    const day = label?.split('-')[2]  // "2026-01-14" → "14"
+    const income = payload.find((p: any) => p.dataKey === 'income')?.value ?? 0
+    const expense = payload.find((p: any) => p.dataKey === 'expense')?.value ?? 0
 
     return (
-        <div className={`${DS.card} !p-3 min-w-36 shadow-lg`}>
-            <p className={`${DS.label} mb-2`}>Ngày {day}</p>
-            {payload.map((entry: any) => (
-                <div key={entry.dataKey} className="flex items-center justify-between gap-4">
+        <div className={`${DS.card} !p-3 min-w-48 shadow-lg`}>
+            <p className={`${DS.label} mb-3`}>{label}</p>
+
+            <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between gap-6">
                     <div className="flex items-center gap-1.5">
-                        <div
-                            className="w-2 h-2 rounded-full"
-                            style={{ backgroundColor: entry.color }}
-                        />
-                        <span className={DS.muted}>
-                            {entry.dataKey === 'income' ? 'Thu' : 'Chi'}
-                        </span>
+                        <div className="w-2.5 h-2.5 rounded-full bg-success-500" />
+                        <span className="text-xs text-text-muted">Thu nhập</span>
                     </div>
-                    <span className="text-sm font-medium">
-                        {formatVND(entry.value)}
+                    <span className="text-sm font-semibold text-success-600">
+                        +{formatVND(income)}
                     </span>
                 </div>
-            ))}
+
+                <div className="flex items-center justify-between gap-6">
+                    <div className="flex items-center gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-danger-500" />
+                        <span className="text-xs text-text-muted">Chi tiêu</span>
+                    </div>
+                    <span className="text-sm font-semibold text-danger-600">
+                        -{formatVND(expense)}
+                    </span>
+                </div>
+
+                {/* <div className="border-t border-surface-border pt-1.5 mt-0.5 flex justify-between">
+                    <span className="text-xs text-text-muted">Số dư tháng</span>
+                    <span className={`text-sm font-bold ${balance >= 0 ? 'text-success-600' : 'text-danger-600'}`}>
+                        {balance >= 0 ? '+' : ''}{formatVND(balance)}
+                    </span>
+                </div> */}
+            </div>
         </div>
     )
 }
@@ -42,10 +54,13 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 interface DailyBarChartProps {
     year?: number
     month?: number
+    startMonth?: number; // dùng khi filter theo quý
+    endMonth?: number;
 }
 
-export const DailyBarChart = ({ year, month }: DailyBarChartProps) => {
-    const { data, isLoading } = useDailyChart(year, month)
+export const DailyBarChart = ({ year, month, startMonth, endMonth
+}: DailyBarChartProps) => {
+    const { data, isLoading } = useDailyChart({ year, month, startMonth, endMonth })
 
     // Format label trục X — chỉ hiện số ngày
     const formatXAxis = (dateStr: string) => dateStr.split('-')[2]

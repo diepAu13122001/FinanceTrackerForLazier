@@ -168,4 +168,4 @@ Frontend: `<PlanGate requires="PLUS">` component + `usePlan()` hook
 
 ## 👨‍💻 Tác Giả
 
-**Diệp Âu** — [GitHub](https://github.com/diepau1312)
+**Diệp Âu** — [GitHub](https://github.com/diepau13122001)

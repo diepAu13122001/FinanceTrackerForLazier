@@ -10,6 +10,12 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  test: {
+    globals: true, // dùng describe/it/expect không cần import
+    environment: "jsdom", // giả lập browser environment
+    setupFiles: "./src/test/setup.ts",
+    css: false, // không cần parse CSS trong test
+  },
   server: {
     watch: {
       usePolling: true, // Bật nếu HMR không nhận diện thay đổi file

@@ -8,6 +8,7 @@ import { useState } from 'react'
 import type { SummaryParams } from '@/services/transactionService'
 import { useNavigate } from 'react-router-dom'
 import { usePlan } from '@/hooks/usePlan'
+import { SummaryCardSkeleton } from '@/components/shared/Skeleton'
 
 export const SummaryCards = () => {
     const navigate = useNavigate()
@@ -31,31 +32,41 @@ export const SummaryCards = () => {
 
             {/* Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <SummaryCard
-                    label="Thu nhập"
-                    value={summary ? formatVND(summary.totalIncome) : '—'}
-                    icon={TrendingUp}
-                    colorClass="text-success-600"
-                    loading={isLoading}
-                />
-                <SummaryCard
-                    label="Chi tiêu"
-                    value={summary ? formatVND(summary.totalExpense) : '—'}
-                    icon={TrendingDown}
-                    colorClass="text-danger-600"
-                    loading={isLoading}
-                />
-                <SummaryCard
-                    label="Số dư"
-                    value={summary ? formatVND(summary.balance) : '—'}
-                    icon={Wallet}
-                    colorClass={
-                        summary
-                            ? summary.balance >= 0 ? 'text-success-600' : 'text-danger-600'
-                            : 'text-text-primary'
-                    }
-                    loading={isLoading}
-                />
+                {isLoading ? (
+                    <>
+                        <SummaryCardSkeleton />
+                        <SummaryCardSkeleton />
+                        <SummaryCardSkeleton />
+                    </>
+                ) : (
+                    <>
+                        <SummaryCard
+                            label="Thu nhập"
+                            value={summary ? formatVND(summary.totalIncome) : '—'}
+                            icon={TrendingUp}
+                            colorClass="text-success-600"
+                            loading={isLoading}
+                        />
+                        <SummaryCard
+                            label="Chi tiêu"
+                            value={summary ? formatVND(summary.totalExpense) : '—'}
+                            icon={TrendingDown}
+                            colorClass="text-danger-600"
+                            loading={isLoading}
+                        />
+                        <SummaryCard
+                            label="Số dư"
+                            value={summary ? formatVND(summary.balance) : '—'}
+                            icon={Wallet}
+                            colorClass={
+                                summary
+                                    ? summary.balance >= 0 ? 'text-success-600' : 'text-danger-600'
+                                    : 'text-text-primary'
+                            }
+                            loading={isLoading}
+                        />
+                    </>
+                )}
             </div>
 
             {/* Cảnh báo giới hạn giao dịch cho Free user */}

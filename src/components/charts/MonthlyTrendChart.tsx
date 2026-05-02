@@ -5,6 +5,8 @@ import {
 import { DS } from '@/lib/design-system'
 import { useMonthlyChart } from '@/hooks/useCharts'
 import { formatShortVND, formatVND } from '@/utils/format'
+import { ChartSkeleton } from '../shared/Skeleton'
+import { NoDataChartEmptyState } from '../shared/EmptyState'
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -58,11 +60,12 @@ interface MonthlyTrendChartProps {
 export const MonthlyTrendChart = ({ year }: MonthlyTrendChartProps) => {
     const { data, isLoading } = useMonthlyChart(year)
 
-    if (isLoading) {
+    if (isLoading) return <ChartSkeleton />
+
+    if (!data || data.length === 0) {
         return (
             <div className={DS.card}>
-                <div className="h-4 w-40 bg-surface-muted rounded animate-pulse mb-4" />
-                <div className="h-48 bg-surface-muted rounded-lg animate-pulse" />
+                <NoDataChartEmptyState />
             </div>
         )
     }

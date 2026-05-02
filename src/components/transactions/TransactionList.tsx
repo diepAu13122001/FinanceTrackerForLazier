@@ -8,6 +8,11 @@ import { Button } from '@/components/shared/Button'
 import { formatRelativeDateVI } from '@/utils/format'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import type { TransactionResponse, FilterType } from '@/services/transactionService'
+import {
+    TransactionItemSkeleton,
+    Skeleton,
+} from '@/components/shared/Skeleton'
+import { NoTransactionsEmptyState } from '../shared/EmptyState'
 
 const groupByDate = (transactions: TransactionResponse[]) =>
     transactions.reduce<Record<string, TransactionResponse[]>>(
@@ -46,10 +51,10 @@ export const TransactionList = () => {
     if (isLoading) {
         return (
             <div className="flex flex-col gap-3">
-                <div className="h-9 w-64 bg-surface-muted rounded-lg animate-pulse" />
-                <div className={`${DS.card} flex flex-col gap-3`}>
-                    {Array.from({ length: 5 }).map((_, i) => (
-                        <div key={i} className="h-14 bg-surface-muted rounded-lg animate-pulse" />
+                <Skeleton className="h-9 w-64 rounded-lg" />
+                <div className={`${DS.card} flex flex-col gap-1`}>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <TransactionItemSkeleton key={i} />
                     ))}
                 </div>
             </div>
@@ -81,18 +86,11 @@ export const TransactionList = () => {
 
                 {/* Danh sách */}
                 {dates.length === 0 ? (
-                    <div className={`${DS.card} flex flex-col items-center gap-3 py-12`}>
-                        <span className="text-4xl">
-                            {filter === 'INCOME' ? '📈' : filter === 'EXPENSE' ? '📉' : '📭'}
-                        </span>
-                        <p className={DS.muted}>
-                            {filter === 'INCOME'
-                                ? 'Chưa có thu nhập nào.'
-                                : filter === 'EXPENSE'
-                                    ? 'Chưa có chi tiêu nào.'
-                                    : 'Chưa có giao dịch nào. Thêm ngay!'
-                            }
-                        </p>
+                    <div className={DS.card}>
+                        <NoTransactionsEmptyState
+                            onAdd={() => setIsModalOpen(true)}
+                            filter={filter}
+                        />
                     </div>
                 ) : (
                     <div className={`${DS.card} flex flex-col gap-1`}>

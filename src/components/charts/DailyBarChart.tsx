@@ -5,6 +5,8 @@ import {
 import { DS } from '@/lib/design-system'
 import { useDailyChart } from '@/hooks/useCharts'
 import { formatShortVND, formatVND } from '@/utils/format'
+import { ChartSkeleton } from '@/components/shared/Skeleton'
+import { NoDataChartEmptyState } from '@/components/shared/EmptyState'
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -65,20 +67,12 @@ export const DailyBarChart = ({ year, month, startMonth, endMonth
     // Format label trục X — chỉ hiện số ngày
     const formatXAxis = (dateStr: string) => dateStr.split('-')[2]
 
-    if (isLoading) {
-        return (
-            <div className={DS.card}>
-                <div className="h-4 w-40 bg-surface-muted rounded animate-pulse mb-4" />
-                <div className="h-48 bg-surface-muted rounded-lg animate-pulse" />
-            </div>
-        )
-    }
+    if (isLoading) return <ChartSkeleton />
 
     if (!data || data.length === 0) {
         return (
-            <div className={`${DS.card} flex flex-col items-center justify-center h-48 gap-2`}>
-                <span className="text-3xl">📊</span>
-                <p className={DS.muted}>Chưa có dữ liệu trong kỳ này</p>
+            <div className={DS.card}>
+                <NoDataChartEmptyState />
             </div>
         )
     }

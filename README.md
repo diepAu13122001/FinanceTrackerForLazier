@@ -2,7 +2,7 @@
 
 Ứng dụng quản lý tài chính cá nhân với AI, được xây dựng cho thị trường Việt Nam.
 
-🌐 **Demo:** [finance-tracker.vercel.app]([https://your-demo-url.vercel.app](https://finance-tracker-gxdy99t2b-diepau13122001s-projects.vercel.app)  
+🌐 **Demo:** [finance-tracker.vercel.app](https://finance-tracker-gxdy99t2b-diepau13122001s-projects.vercel.app)  
 📹 **Video demo:** [YouTube](https://youtube.com/...)
 
 ---

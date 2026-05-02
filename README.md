@@ -71,7 +71,7 @@ export default defineConfig([
     },
   },
 ])
-```
+```markdown
 users ──────────── user_subscriptions ──── subscription_plans
   │                                               (FREE/PLUS/PREMIUM)
   └──── transactions

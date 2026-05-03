@@ -31,11 +31,7 @@ function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: '#fff',
-            color: '#0f172a',
-            fontSize: '14px',
-            borderRadius: '12px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            animation: 'toastEnter 0.3s ease forwards',
           },
           success: { iconTheme: { primary: '#22c55e', secondary: '#fff' } },
           error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },

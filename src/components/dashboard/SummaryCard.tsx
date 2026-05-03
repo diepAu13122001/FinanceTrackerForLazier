@@ -1,23 +1,30 @@
 import { animations } from '@/lib/animations'
 import { DS } from '@/lib/design-system'
 import type { LucideIcon } from 'lucide-react'
+import { useCountUp } from '@/hooks/useCountUp'
+import { formatVND } from '@/utils/format'
 
 interface SummaryCardProps {
     label: string
     value: string
+    rawAmount?: number
     icon: LucideIcon
-    trend?: number      // % thay đổi so với kỳ trước — tính năng sau
-    colorClass: string      // màu của value
+    trend?: number
+    colorClass: string
     loading?: boolean
 }
 
 export const SummaryCard = ({
     label,
     value,
+    rawAmount,
     icon: Icon,
     colorClass,
     loading = false,
 }: SummaryCardProps) => {
+
+    const animatedAmount = useCountUp(rawAmount ?? 0)
+
     if (loading) {
         return (
             <div className={DS.card}>
@@ -32,14 +39,19 @@ export const SummaryCard = ({
             ${DS.card}
             ${animations.fadeInUp}
             transition-shadow hover:shadow-md
-            `}>
+        `}>
             <div className="flex items-center justify-between mb-3">
                 <p className={DS.muted}>{label}</p>
                 <div className="w-8 h-8 rounded-lg bg-surface-muted flex items-center justify-center">
                     <Icon size={16} className="text-text-muted" />
                 </div>
             </div>
-            <p className={`text-xl font-bold ${colorClass}`}>{value}</p>
+
+            <p className={`text-xl font-bold ${colorClass}`}>
+                {rawAmount !== undefined
+                    ? formatVND(animatedAmount)
+                    : value}
+            </p>
         </div>
     )
 }

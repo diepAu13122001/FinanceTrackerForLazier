@@ -73,12 +73,13 @@ export const TransactionItem = ({ transaction, onEdit }: TransactionItemProps) =
                     onClick={handleDelete}
                     disabled={deleteMutation.isPending}
                     className={`
-            p-1.5 rounded-md text-text-muted transition-colors
-            ${confirmDelete
-                            ? 'bg-danger-500 text-white hover:bg-danger-600'
+                        p-2.5 rounded-md text-text-muted
+                        transition-all duration-200
+                        ${confirmDelete
+                            ? 'bg-danger-500 text-white scale-110'
                             : 'hover:bg-surface-border hover:text-danger-500'
                         }
-          `}
+                    `}
                 >
                     <Trash2 size={14} />
                 </button>

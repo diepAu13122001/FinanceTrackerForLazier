@@ -1,7 +1,8 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import { TopBar } from './TopBar'
 import { Sidebar } from './Sidebar'
 import { BottomNav } from './BottomNav'
+import { animations } from '@/lib/animations'
 
 // ─── Layout wrapper cho tất cả private routes ─────────────────────────────────
 //
@@ -22,6 +23,7 @@ import { BottomNav } from './BottomNav'
 // └─────────────────────────────┘
 
 export const AppLayout = () => {
+    const location = useLocation()
     return (
         <div className="h-screen flex flex-col overflow-hidden">
 
@@ -36,7 +38,9 @@ export const AppLayout = () => {
 
                 {/* Page content — scroll độc lập */}
                 <main className="flex-1 overflow-y-auto bg-surface-muted">
-                    <Outlet />
+                    <div className={animations.fadeIn} key={location.pathname}>
+                        <Outlet />
+                    </div>
                 </main>
 
             </div>

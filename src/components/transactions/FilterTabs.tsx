@@ -42,6 +42,8 @@ export const FilterTabs = ({ active, onChange, counts }: FilterTabsProps) => (
                         : 'text-text-muted hover:text-text-primary'
                     }
                 `}
+                key={tab.key}
+                onClick={() => onChange(tab.key)}
             >
                 {tab.label}
 

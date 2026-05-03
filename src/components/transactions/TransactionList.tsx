@@ -116,9 +116,6 @@ export const TransactionList = () => {
                         {/* Pagination */}
                         {(data?.totalPages ?? 0) > 1 && (
                             <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border mt-2">
-                                {/* <span className={DS.muted}>
-                                    Trang {(data?.number ?? 0) + 1} / {data?.totalPages}
-                                </span> */}
                                 <span className={DS.muted}>
                                     Hiển thị {data?.content.length} / {data?.totalElements} giao dịch
                                 </span>

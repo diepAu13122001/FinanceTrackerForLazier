@@ -6,7 +6,7 @@ import { useAuthStore } from "@/stores/authStore";
 // axios.create() -> trả về một instnace mới của axios với config mặc định
 // axios.get sẽ không cần nhắc lại baseURL/ headers/ interceptors nữa, vì đã được cấu hình sẵn ở đây
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8081",
+  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:8080",
   headers: {
     "Content-Type": "application/json",
   },

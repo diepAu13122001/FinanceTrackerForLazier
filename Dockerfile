@@ -12,7 +12,7 @@ RUN npm ci --frozen-lockfile
 COPY . .
 
 # Build args — truyền vào lúc docker build
-ARG VITE_API_URL=http://localhost:8081
+ARG VITE_API_URL=http://localhost:8080
 ENV VITE_API_URL=$VITE_API_URL
 
 RUN npm run build

@@ -26,10 +26,13 @@ export interface TransactionResponse {
 
 export interface TransactionPage {
   content: TransactionResponse[];
+  page: number;
+  size: number;
   totalElements: number;
   totalPages: number;
-  number: number;
-  size: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
 }
 
 export interface TransactionSummary {

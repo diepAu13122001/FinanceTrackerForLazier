@@ -34,16 +34,14 @@ export const FilterTabs = ({ active, onChange, counts }: FilterTabsProps) => (
     <div className="flex p-1 bg-surface-muted rounded-lg w-fit gap-1">
         {TABS.map(tab => (
             <button
-                key={tab.key}
-                onClick={() => onChange(tab.key)}
                 className={`
-          flex items-center gap-1.5 px-3 py-1.5 rounded-md
-          text-sm font-medium transition-all
-          ${active === tab.key
+                    px-3 py-1.5 rounded-md text-sm font-medium
+                    transition-all duration-200  
+                    ${active === tab.key
                         ? tab.activeClass
                         : 'text-text-muted hover:text-text-primary'
                     }
-        `}
+                `}
             >
                 {tab.label}
 

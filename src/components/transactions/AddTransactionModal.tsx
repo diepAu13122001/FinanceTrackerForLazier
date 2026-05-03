@@ -11,6 +11,7 @@ import { formatVND, parseSmartVNDInput } from '@/utils/format'
 import { usePlan } from '@/hooks/usePlan'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { getErrorMessage, getErrorCode } from '@/utils/errorUtils'
+import { animations } from '@/lib/animations'
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -141,8 +142,14 @@ export const AddTransactionModal = ({
                 if (e.target === e.currentTarget) onClose()
             }}
         >
-            <div className={`${DS.card} w-full max-w-md relative`}>
+            {/* <div className={`${DS.card} w-full max-w-md relative`}> */}
 
+            <div className={`
+                ${DS.card} w-full sm:max-w-md
+                rounded-t-2xl sm:rounded-xl
+                max-h-[90vh] overflow-y-auto
+                ${animations.slideInBottom} sm:${animations.scaleIn}
+                `}>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                     <h2 className={DS.heading2}>

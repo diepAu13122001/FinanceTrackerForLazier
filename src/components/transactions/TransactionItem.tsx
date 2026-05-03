@@ -30,7 +30,12 @@ export const TransactionItem = ({ transaction, onEdit }: TransactionItemProps) =
     }
 
     return (
-        <div className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-surface-muted transition-colors group">
+        <div className="
+            flex items-center gap-3 px-4 py-3 rounded-lg
+            hover:bg-surface-muted
+            transition-all duration-150 
+            group
+            ">
 
             {/* Icon type */}
             <div className={`

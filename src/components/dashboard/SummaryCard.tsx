@@ -1,3 +1,4 @@
+import { animations } from '@/lib/animations'
 import { DS } from '@/lib/design-system'
 import type { LucideIcon } from 'lucide-react'
 
@@ -27,7 +28,11 @@ export const SummaryCard = ({
     }
 
     return (
-        <div className={DS.card}>
+        <div className={`
+            ${DS.card}
+            ${animations.fadeInUp}
+            transition-shadow hover:shadow-md
+            `}>
             <div className="flex items-center justify-between mb-3">
                 <p className={DS.muted}>{label}</p>
                 <div className="w-8 h-8 rounded-lg bg-surface-muted flex items-center justify-center">

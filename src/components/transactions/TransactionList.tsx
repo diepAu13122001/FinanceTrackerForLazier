@@ -116,11 +116,14 @@ export const TransactionList = () => {
                         {/* Pagination */}
                         {(data?.totalPages ?? 0) > 1 && (
                             <div className="flex items-center justify-between px-4 py-3 border-t border-surface-border mt-2">
-                                <span className={DS.muted}>
+                                {/* <span className={DS.muted}>
                                     Trang {(data?.number ?? 0) + 1} / {data?.totalPages}
+                                </span> */}
+                                <span className={DS.muted}>
+                                    Hiển thị {data?.content.length} / {data?.totalElements} giao dịch
                                 </span>
                                 <div className="flex gap-2">
-                                    <Button
+                                    {/* <Button
                                         variant="ghost"
                                         size="sm"
                                         disabled={page === 0}
@@ -137,7 +140,15 @@ export const TransactionList = () => {
                                         rightIcon={<ChevronRight size={14} />}
                                     >
                                         Tiếp
-                                    </Button>
+                                    </Button> */}
+                                    {!data?.last && (
+                                        <Button onClick={() => setPage(p => p + 1)}>Tiếp</Button>
+                                    )}
+                                    {!data?.first && (
+                                        <Button onClick={() => setPage(p => p - 1)}>Trước</Button>
+                                    )}
+
+
                                 </div>
                             </div>
                         )}

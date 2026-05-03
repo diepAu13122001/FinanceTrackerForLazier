@@ -2,13 +2,17 @@ import { TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 import { SummaryCard } from './SummaryCard'
 import { PeriodSelector } from '@/components/transactions/PeriodSelector'
 import { useTransactionSummary } from '@/hooks/useTransactions'
+import { SummaryCardSkeleton } from '@/components/shared/Skeleton'
 import { formatVND } from '@/utils/format'
-// import { DS } from '@/lib/design-system'
+import { DS } from '@/lib/design-system'
 import { useState } from 'react'
-import type { SummaryParams } from '@/services/transactionService'
 import { useNavigate } from 'react-router-dom'
 import { usePlan } from '@/hooks/usePlan'
-import { SummaryCardSkeleton } from '@/components/shared/Skeleton'
+import { animations } from '@/lib/animations'
+import type { SummaryParams } from '@/services/transactionService'
+
+// Stagger delays cho 3 cards
+const CARD_DELAYS = ['delay-0', 'delay-75', 'delay-150']
 
 export const SummaryCards = () => {
     const navigate = useNavigate()
@@ -21,55 +25,61 @@ export const SummaryCards = () => {
 
     const { data: summary, isLoading } = useTransactionSummary(summaryParams)
 
+    // Định nghĩa 3 cards với data thật
+    const cards = [
+        {
+            label: 'Thu nhập',
+            value: summary ? formatVND(summary.totalIncome) : '—',
+            icon: TrendingUp,
+            colorClass: 'text-success-600',
+        },
+        {
+            label: 'Chi tiêu',
+            value: summary ? formatVND(summary.totalExpense) : '—',
+            icon: TrendingDown,
+            colorClass: 'text-danger-600',
+        },
+        {
+            label: 'Số dư',
+            value: summary ? formatVND(summary.balance) : '—',
+            icon: Wallet,
+            colorClass: summary
+                ? summary.balance >= 0 ? 'text-success-600' : 'text-danger-600'
+                : 'text-text-primary',
+        },
+    ]
+
     return (
         <div className="flex flex-col gap-4">
 
-            {/* Period selector */}
             <PeriodSelector
                 params={summaryParams}
                 onChange={setSummaryParams}
             />
 
-            {/* Cards */}
+            {/* Cards với stagger animation */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {isLoading ? (
+                    // Skeleton không cần animation
                     <>
                         <SummaryCardSkeleton />
                         <SummaryCardSkeleton />
                         <SummaryCardSkeleton />
                     </>
                 ) : (
-                    <>
-                        <SummaryCard
-                            label="Thu nhập"
-                            value={summary ? formatVND(summary.totalIncome) : '—'}
-                            icon={TrendingUp}
-                            colorClass="text-success-600"
-                            loading={isLoading}
-                        />
-                        <SummaryCard
-                            label="Chi tiêu"
-                            value={summary ? formatVND(summary.totalExpense) : '—'}
-                            icon={TrendingDown}
-                            colorClass="text-danger-600"
-                            loading={isLoading}
-                        />
-                        <SummaryCard
-                            label="Số dư"
-                            value={summary ? formatVND(summary.balance) : '—'}
-                            icon={Wallet}
-                            colorClass={
-                                summary
-                                    ? summary.balance >= 0 ? 'text-success-600' : 'text-danger-600'
-                                    : 'text-text-primary'
-                            }
-                            loading={isLoading}
-                        />
-                    </>
+                    // Mỗi card có delay khác nhau → hiệu ứng stagger
+                    cards.map((card, i) => (
+                        <div
+                            key={card.label}
+                            className={`${animations.fadeInUp} ${CARD_DELAYS[i]}`}
+                        >
+                            <SummaryCard {...card} loading={false} />
+                        </div>
+                    ))
                 )}
             </div>
 
-            {/* Cảnh báo giới hạn giao dịch cho Free user */}
+            {/* Cảnh báo giới hạn Free */}
             {isFree && summary && (
                 <div className={`
           flex items-center justify-between px-4 py-3 rounded-lg

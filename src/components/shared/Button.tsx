@@ -1,8 +1,6 @@
 import { animations } from '@/lib/animations'
 import { DS } from '@/lib/design-system'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
 type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'premium'
 type ButtonSize = 'sm' | 'md' | 'lg'
 
@@ -15,15 +13,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode
 }
 
-// ─── Size Map ─────────────────────────────────────────────────────────────────
-
 const sizeMap: Record<ButtonSize, string> = {
     sm: 'px-3 py-1.5 text-xs gap-1.5',
     md: 'px-4 py-2   text-sm gap-2',
     lg: 'px-5 py-2.5 text-base gap-2',
 }
-
-// ─── Variant Map ──────────────────────────────────────────────────────────────
 
 const variantMap: Record<ButtonVariant, string> = {
     primary: DS.btnPrimary,
@@ -31,8 +25,6 @@ const variantMap: Record<ButtonVariant, string> = {
     danger: DS.btnDanger,
     premium: DS.btnPremium,
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export const Button = ({
     variant = 'primary',
@@ -55,8 +47,7 @@ export const Button = ({
             aria-busy={loading}
             {...props}
         >
-            {/* Loading spinner */}
-            {loading && (
+            {loading ? (
                 <span className={`${animations.fadeIn} flex items-center gap-2`}>
                     <svg
                         className="animate-spin h-4 w-4 shrink-0"
@@ -78,19 +69,20 @@ export const Button = ({
                     </svg>
                     <span className="opacity-75">{children}</span>
                 </span>
-            )}
-
-            {/* Icon trái */}
-            {!loading && leftIcon && (
-                <span className="shrink-0" aria-hidden="true">{leftIcon}</span>
-            )}
-
-            {/* Nội dung */}
-            <span>{children}</span>
-
-            {/* Icon phải */}
-            {!loading && rightIcon && (
-                <span className="shrink-0" aria-hidden="true">{rightIcon}</span>
+            ) : (
+                <>
+                    {leftIcon && (
+                        <span className="shrink-0" aria-hidden="true">
+                            {leftIcon}
+                        </span>
+                    )}
+                    <span>{children}</span>
+                    {rightIcon && (
+                        <span className="shrink-0" aria-hidden="true">
+                            {rightIcon}
+                        </span>
+                    )}
+                </>
             )}
         </button>
     )

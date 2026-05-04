@@ -11,11 +11,9 @@ import { animations } from '@/lib/animations'
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const user = useAuthStore(s => s.user)
-    // Mỗi card delay khác nhau — tạo hiệu ứng stagger
-    const CARD_DELAYS = ['delay-0', 'delay-75', 'delay-150']
-
     return (
-        <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
+        // 👇 thêm relative để FAB định vị đúng trong scroll context
+        <div className="relative max-w-2xl mx-auto p-6 flex flex-col gap-6">
 
             {/* Header */}
             <div className={`flex items-center justify-between ${animations.fadeInUp}`}>
@@ -25,12 +23,16 @@ const Dashboard = () => {
                     </h1>
                     <p className={DS.muted}>Đây là tổng quan tài chính của bạn</p>
                 </div>
-                <Button
-                    leftIcon={<Plus size={16} />}
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Thêm giao dịch
-                </Button>
+
+                {/* 🔄 SỬA: Button desktop — ẩn trên mobile, hiện từ md trở lên */}
+                <div className="hidden md:block">
+                    <Button
+                        leftIcon={<Plus size={16} />}
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        Thêm giao dịch
+                    </Button>
+                </div>
             </div>
 
             {/* Summary cards + period selector */}
@@ -42,7 +44,25 @@ const Dashboard = () => {
                 <TransactionList />
             </div>
 
-            {/* Modal */}
+            {/* 👇 THÊM MỚI: FAB — chỉ hiện trên mobile, ẩn từ md trở lên */}
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="
+                    fixed bottom-20 right-4 z-40
+                    md:hidden
+                    w-14 h-14 rounded-full
+                    bg-primary-500 text-white
+                    flex items-center justify-center
+                    shadow-lg shadow-primary-200
+                    hover:bg-primary-600 active:scale-95
+                    transition-all duration-150
+                "
+                aria-label="Thêm giao dịch"
+            >
+                <Plus size={24} />
+            </button>
+
+            {/* Modal — dùng chung cho cả desktop button và mobile FAB */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

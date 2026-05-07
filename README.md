@@ -101,3 +101,11 @@ npm run test:run
 Desktop (≥768px):  Sidebar navigation
 Mobile  (<768px):  Bottom navigation + FAB button
 ```
+
+---
+
+## 👨‍💻 Tác Giả
+
+**Diệp Âu**
+[GitHub](https://github.com/diepau13122001) ·
+[Email](mailto:diepau1312@gmail.com)

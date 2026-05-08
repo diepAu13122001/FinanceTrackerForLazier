@@ -12,6 +12,8 @@ import { usePlan } from '@/hooks/usePlan'
 import { useCreateTransaction, useUpdateTransaction } from '@/hooks/useTransactions'
 import { getErrorMessage, getErrorCode } from '@/utils/errorUtils'
 import { animations } from '@/lib/animations'
+import { CategorySelector } from '@/components/categories/CategorySelector'
+import { PlanGate } from '@/components/shared/PlanGate'
 
 // ─── Validation Schema ────────────────────────────────────────────────────────
 
@@ -60,6 +62,7 @@ export const AddTransactionModal = ({
 }: AddTransactionModalProps) => {
     const { plan, isFree } = usePlan()
     const [serverError, setServerError] = useState<string | null>(null)
+    const [categoryId, setCategoryId] = useState<string | null>(null)
 
     const isEditMode = editData !== null
 
@@ -106,6 +109,7 @@ export const AddTransactionModal = ({
             amount: parseSmartVNDInput(data.amount),
             note: data.note || undefined,
             transactionDate: data.transactionDate,
+            categoryId: categoryId || undefined, // Gửi undefined nếu null để backend hiểu là "không chọn"
         }
 
         try {
@@ -227,6 +231,14 @@ export const AddTransactionModal = ({
                         error={errors.note?.message}
                         {...register('note')}
                     />
+
+                    <PlanGate requires="PLUS" fallback={null}>
+                        <CategorySelector
+                            value={categoryId}
+                            onChange={setCategoryId}
+                            type={transactionType}
+                        />
+                    </PlanGate>
 
                     <Input
                         label="Ngày"

@@ -49,6 +49,7 @@ interface AddTransactionModalProps {
         amount: number
         note: string | null
         transactionDate: string
+        categoryId?: string | null  // 👈 THÊM: để khi edit, biết category đã chọn
     } | null
 }
 
@@ -62,11 +63,10 @@ export const AddTransactionModal = ({
 }: AddTransactionModalProps) => {
     const { plan, isFree } = usePlan()
     const [serverError, setServerError] = useState<string | null>(null)
-    const [categoryId, setCategoryId] = useState<string | null>(null)
+    const [categoryId, setCategoryId] = useState<string | null>(null)  // 👈 THÊM
 
     const isEditMode = editData !== null
 
-    // ── Dùng hooks thay vì gọi service trực tiếp ──────────────────────────────
     const createMutation = useCreateTransaction()
     const updateMutation = useUpdateTransaction()
 
@@ -89,7 +89,7 @@ export const AddTransactionModal = ({
 
     const selectedType = watch('type')
 
-    // Reset form mỗi khi modal mở hoặc editData thay đổi
+    // Reset form khi modal mở hoặc editData thay đổi
     useEffect(() => {
         if (!isOpen) return
         reset({
@@ -98,9 +98,20 @@ export const AddTransactionModal = ({
             note: editData?.note ?? '',
             transactionDate: editData?.transactionDate ?? new Date().toISOString().split('T')[0],
         })
-    }, [isOpen, editData])
+        // 👇 THÊM: reset categoryId
+        setCategoryId(editData?.categoryId ?? null)
+        setServerError(null)
+    }, [isOpen, editData, reset])
 
-    // ── Submit ──────────────────────────────────────────────────────────────────
+    // 👇 THÊM: nếu user đổi type (EXPENSE ↔ INCOME), reset category
+    // vì category EXPENSE không dùng được cho transaction INCOME (và ngược lại)
+    useEffect(() => {
+        if (!isEditMode) {
+            setCategoryId(null)
+        }
+    }, [selectedType, isEditMode])
+
+    // ── Submit ────────────────────────────────────────────────────────────────
     const onSubmit = async (data: TransactionFormData) => {
         setServerError(null)
 
@@ -109,7 +120,8 @@ export const AddTransactionModal = ({
             amount: parseSmartVNDInput(data.amount),
             note: data.note || undefined,
             transactionDate: data.transactionDate,
-            categoryId: categoryId || undefined, // Gửi undefined nếu null để backend hiểu là "không chọn"
+            // 👇 THÊM: gửi categoryId nếu có
+            categoryId: categoryId || undefined,
         }
 
         try {
@@ -119,10 +131,8 @@ export const AddTransactionModal = ({
                 await createMutation.mutateAsync(payload)
             }
 
-            // onSuccess() giờ chỉ để caller xử lý thêm nếu cần
-            // (ví dụ đóng drawer, scroll lên đầu...)
-            // Cache invalidation đã được xử lý trong hook rồi.
             reset()
+            setCategoryId(null)
             onSuccess()
             onClose()
         } catch (error: unknown) {
@@ -146,14 +156,12 @@ export const AddTransactionModal = ({
                 if (e.target === e.currentTarget) onClose()
             }}
         >
-            {/* <div className={`${DS.card} w-full max-w-md relative`}> */}
-
             <div className={`
                 ${DS.card} w-full sm:max-w-md
                 rounded-t-2xl sm:rounded-xl
                 max-h-[90vh] overflow-y-auto
                 ${animations.slideInBottom} sm:${animations.scaleIn}
-                `}>
+            `}>
                 {/* Header */}
                 <div className="flex items-center justify-between mb-5">
                     <h2 className={DS.heading2}>
@@ -167,10 +175,8 @@ export const AddTransactionModal = ({
                     </button>
                 </div>
 
-                {/* Cảnh báo giới hạn Free plan */}
-                {isFree && (
-                    <TransactionLimitWarning planId={plan} />
-                )}
+                {/* Cảnh báo giới hạn Free */}
+                {isFree && <TransactionLimitWarning planId={plan} />}
 
                 {/* Server error */}
                 {serverError && (
@@ -189,14 +195,14 @@ export const AddTransactionModal = ({
                                 type="button"
                                 onClick={() => setValue('type', type)}
                                 className={`
-                  py-2 rounded-md text-sm font-medium transition-all
-                  ${selectedType === type
+                                    py-2 rounded-md text-sm font-medium transition-all
+                                    ${selectedType === type
                                         ? type === 'INCOME'
                                             ? 'bg-success-500 text-white shadow-sm'
                                             : 'bg-danger-500 text-white shadow-sm'
                                         : 'text-text-secondary hover:text-text-primary'
                                     }
-                `}
+                                `}
                             >
                                 {type === 'INCOME' ? '↑ Thu nhập' : '↓ Chi tiêu'}
                             </button>
@@ -225,6 +231,7 @@ export const AddTransactionModal = ({
                         )}
                     </div>
 
+                    {/* Ghi chú */}
                     <Input
                         label="Ghi chú"
                         placeholder="Cà phê Highlands, Tiền điện tháng 1..."
@@ -232,14 +239,16 @@ export const AddTransactionModal = ({
                         {...register('note')}
                     />
 
+                    {/* 👇 THÊM: Danh mục — chỉ Plus/Premium mới thấy */}
                     <PlanGate requires="PLUS" fallback={null}>
                         <CategorySelector
                             value={categoryId}
                             onChange={setCategoryId}
-                            type={transactionType}
+                            type={selectedType}
                         />
                     </PlanGate>
 
+                    {/* Ngày */}
                     <Input
                         label="Ngày"
                         type="date"
@@ -263,7 +272,9 @@ export const AddTransactionModal = ({
                             loading={isSubmitting}
                             className="flex-1"
                         >
-                            {isEditMode ? 'Cập nhật' : selectedType === 'INCOME' ? 'Thêm thu nhập' : 'Thêm chi tiêu'}
+                            {isEditMode
+                                ? 'Cập nhật'
+                                : selectedType === 'INCOME' ? 'Thêm thu nhập' : 'Thêm chi tiêu'}
                         </Button>
                     </div>
 

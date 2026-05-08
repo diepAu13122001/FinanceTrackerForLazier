@@ -39,10 +39,11 @@ export const CategorySelector = ({
           ${DS.inputBase}
           flex items-center justify-between
           cursor-pointer
+          {selected ? 'py-1.5' : ''} 
         `}
             >
                 {selected ? (
-                    <CategoryBadge category={selected} />
+                    <CategoryBadge category={selected} size="sm" />
                 ) : (
                     <span className="text-text-muted">Chọn danh mục (tùy chọn)</span>
                 )}

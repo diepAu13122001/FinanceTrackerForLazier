@@ -31,3 +31,11 @@ export const getErrorCode = (error: unknown): string | null => {
   }
   return null;
 };
+
+
+export const getApiErrorMessage = (
+  error: unknown,
+  fallback = "Có lỗi xảy ra, vui lòng thử lại"
+): string => {
+  return getErrorMessage(error, fallback);
+};

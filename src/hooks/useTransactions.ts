@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  transactionService,
-  type TransactionType,
-} from "@/services/transactionService";
-import type { SummaryParams } from "@/services/transactionService";
-import type { FilterType } from "@/services/transactionService";
+import { transactionService } from "@/services/transactionService";
+import type {
+  FilterType,
+  SummaryParams,
+  TransactionRequest,
+} from "@/types/transaction";
 import { notify, TOAST_MESSAGES } from "@/lib/toast";
 
 // ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
@@ -27,24 +27,19 @@ export const useTransactions = (page = 0, filter: FilterType = "ALL") => {
 // ─── Hook lấy summary ─────────────────────────────────────────────────────────
 export const useTransactionSummary = (params: SummaryParams = {}) => {
   return useQuery({
-    queryKey: ["transactions", "summary", params], // cache riêng theo params
+    queryKey: ["transactions", "summary", params],
     queryFn: () => transactionService.getSummary(params),
   });
 };
 
-// ─── Payload type dùng chung cho create / update ──────────────────────────────
-interface TransactionPayload {
-  type: TransactionType;
-  amount: number;
-  note?: string;
-  transactionDate: string;
-}
+// 🔄 SỬA: bỏ TransactionPayload, dùng TransactionRequest từ types/transaction.ts
+//    → giờ payload có thêm field categoryId tự động
 
 // ─── Hook thêm giao dịch ──────────────────────────────────────────────────────
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: TransactionPayload) =>
+    mutationFn: (payload: TransactionRequest) =>
       transactionService.create(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
@@ -65,7 +60,7 @@ export const useUpdateTransaction = () => {
       payload,
     }: {
       id: string;
-      payload: TransactionPayload;
+      payload: TransactionRequest;
     }) => transactionService.update(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["transactions"] });

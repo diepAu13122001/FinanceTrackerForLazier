@@ -1,21 +1,61 @@
 import type { CategoryResponse } from "./category";
 
-// TransactionRequest — thêm field mới
-interface TransactionRequest {
-  type: "INCOME" | "EXPENSE";
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+export type TransactionType = "INCOME" | "EXPENSE";
+export type FilterType = "ALL" | "INCOME" | "EXPENSE";
+
+// ─── Request gửi lên API ──────────────────────────────────────────────────────
+
+export interface TransactionRequest {
+  type: TransactionType;
   amount: number;
   note?: string;
-  transactionDate: string;
-  categoryId?: string | null; // 👈 THÊM MỚI
+  transactionDate: string; // "YYYY-MM-DD"
+  currency?: string;
+  categoryId?: string | null; // null/undefined = không phân loại
 }
 
-// TransactionResponse — thêm category object
-interface TransactionResponse {
+// ─── Response từ API ──────────────────────────────────────────────────────────
+
+export interface TransactionResponse {
   id: string;
-  type: "INCOME" | "EXPENSE";
+  type: TransactionType;
   amount: number;
-  note?: string;
+  currency: string;
+  note: string | null;
   transactionDate: string;
-  category?: CategoryResponse | null; // 👈 THÊM MỚI
-  // ... các field khác
+  source: string;
+  createdAt: string;
+  category: CategoryResponse | null; // null nếu chưa phân loại
+}
+
+// ─── Pagination ───────────────────────────────────────────────────────────────
+
+export interface TransactionPage {
+  content: TransactionResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+}
+
+// ─── Summary ──────────────────────────────────────────────────────────────────
+
+export interface TransactionSummary {
+  totalIncome: number;
+  totalExpense: number;
+  balance: number;
+  transactionCount: number;
+  transactionLimit: number; // -1 = không giới hạn
+  limitReached: boolean;
+}
+
+export interface SummaryParams {
+  year?: number;
+  month?: number; // 1-12
+  quarter?: number; // 1-4
 }

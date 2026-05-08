@@ -1,54 +1,24 @@
 import { api } from "@/lib/api";
+import type {
+  FilterType,
+  SummaryParams,
+  TransactionPage,
+  TransactionRequest,
+  TransactionResponse,
+  TransactionSummary,
+} from "@/types/transaction";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-export type TransactionType = "INCOME" | "EXPENSE";
-export type FilterType = "ALL" | "INCOME" | "EXPENSE";
-
-export interface TransactionRequest {
-  type: TransactionType;
-  amount: number;
-  note?: string;
-  transactionDate: string; // "YYYY-MM-DD"
-  currency?: string;
-}
-
-export interface TransactionResponse {
-  id: string;
-  type: TransactionType;
-  amount: number;
-  currency: string;
-  note: string | null;
-  transactionDate: string;
-  source: string;
-  createdAt: string;
-}
-
-export interface TransactionPage {
-  content: TransactionResponse[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
-}
-
-export interface TransactionSummary {
-  totalIncome: number;
-  totalExpense: number;
-  balance: number;
-  transactionCount: number;
-  transactionLimit: number; // -1 = không giới hạn
-  limitReached: boolean;
-}
-
-export interface SummaryParams {
-  year?: number;
-  month?: number; // 1-12
-  quarter?: number; // 1-4
-}
+// ✅ Re-export types để code cũ vẫn compile
+// (nếu nơi khác đang `import { TransactionType } from '@/services/transactionService'`)
+export type {
+  TransactionType,
+  FilterType,
+  TransactionRequest,
+  TransactionResponse,
+  TransactionPage,
+  TransactionSummary,
+  SummaryParams,
+} from "@/types/transaction";
 
 // ─── API calls ────────────────────────────────────────────────────────────────
 
@@ -66,7 +36,7 @@ export const transactionService = {
     size = 20,
     filter: FilterType = "ALL",
   ): Promise<TransactionPage> => {
-    const params: Record<string, any> = { page, size };
+    const params: Record<string, unknown> = { page, size };
     if (filter !== "ALL") params.type = filter;
 
     const response = await api.get<TransactionPage>("/api/transactions", {
@@ -80,9 +50,7 @@ export const transactionService = {
   ): Promise<TransactionSummary> => {
     const response = await api.get<TransactionSummary>(
       "/api/transactions/summary",
-      {
-        params, // axios tự convert thành ?year=2026&month=1
-      },
+      { params },
     );
     return response.data;
   },

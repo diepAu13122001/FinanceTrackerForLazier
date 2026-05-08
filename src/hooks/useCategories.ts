@@ -1,0 +1,100 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { categoryService } from "@/services/categoryService";
+import type {
+  CategoryRequest,
+  CategoryResponse,
+  TransactionType,
+} from "@/types/category";
+import { notify } from "@/lib/toast";
+import { getApiErrorMessage } from "@/utils/errorUtils";
+
+// ── Cache keys ─────────────────────────────────────────────
+// Pattern hierarchy: invalidate ['categories'] sẽ clear cả ['categories', 'EXPENSE']
+export const CATEGORY_KEYS = {
+  all: ["categories"] as const,
+  byType: (type: TransactionType) => ["categories", type] as const,
+};
+
+// ════════════════════════════════════════════════════════════
+// QUERIES
+// ════════════════════════════════════════════════════════════
+
+/**
+ * Lấy tất cả categories của user.
+ * Optional: filter theo type.
+ */
+export const useCategories = (type?: TransactionType) => {
+  return useQuery({
+    queryKey: type ? CATEGORY_KEYS.byType(type) : CATEGORY_KEYS.all,
+    queryFn: () => categoryService.getAll(type),
+    staleTime: 5 * 60 * 1000, // 5 phút — categories ít thay đổi
+  });
+};
+
+// ════════════════════════════════════════════════════════════
+// MUTATIONS
+// ════════════════════════════════════════════════════════════
+
+/**
+ * Tạo category mới.
+ */
+export const useCreateCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: CategoryRequest) => categoryService.create(request),
+
+    onSuccess: (data) => {
+      // Invalidate cả ['categories'] lẫn ['categories', 'EXPENSE']/['categories', 'INCOME']
+      queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      notify.success(`Đã tạo danh mục "${data.name}"`);
+    },
+
+    onError: (err: unknown) => {
+      notify.error(getApiErrorMessage(err));
+    },
+  });
+};
+
+/**
+ * Update category.
+ */
+export const useUpdateCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, request }: { id: string; request: CategoryRequest }) =>
+      categoryService.update(id, request),
+
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      notify.success(`Đã cập nhật "${data.name}"`);
+    },
+
+    onError: (err: unknown) => {
+      notify.error(getApiErrorMessage(err));
+    },
+  });
+};
+
+/**
+ * Xóa category. Transactions liên quan vẫn còn nhưng category_id = NULL.
+ */
+export const useDeleteCategory = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => categoryService.delete(id),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      // Cũng invalidate transactions vì transaction.category sẽ thành null
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      notify.success("Đã xóa danh mục");
+    },
+
+    onError: (err: unknown) => {
+      notify.error(getApiErrorMessage(err));
+    },
+  });
+};

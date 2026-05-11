@@ -19,8 +19,9 @@ export const TRANSACTION_KEYS = {
 // helper invalidate tất cả cần thiết sau mỗi mutation
 const invalidateAll = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["transactions"] });
-  queryClient.invalidateQueries({ queryKey: ["chart"] }); // 🔄 THÊM: invalidate mọi chart
-  queryClient.invalidateQueries({ queryKey: ["categories"] }); // 🔄 THÊM: update totalAmount
+  queryClient.invalidateQueries({ queryKey: ["chart"] });
+  queryClient.invalidateQueries({ queryKey: ["categories"] });
+  queryClient.invalidateQueries({ queryKey: ["goals"] });  
 };
 
 // ─── Hook lấy danh sách giao dịch ─────────────────────────────────────────────

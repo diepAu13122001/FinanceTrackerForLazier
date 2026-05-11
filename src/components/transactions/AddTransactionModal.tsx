@@ -14,6 +14,7 @@ import { getErrorMessage, getErrorCode } from '@/utils/errorUtils'
 import { animations } from '@/lib/animations'
 import { CategorySelector } from '@/components/categories/CategorySelector'
 import { PlanGate } from '@/components/shared/PlanGate'
+import { GoalSelector } from '@/components/goals/GoalSelector'
 
 const transactionSchema = z.object({
     type: z.enum(['INCOME', 'EXPENSE']),
@@ -46,9 +47,11 @@ interface AddTransactionModalProps {
         note: string | null
         transactionDate: string
         categoryId?: string | null
+        goalId?: string | null
     } | null
     defaultType?: TransactionType
     defaultCategoryId?: string | null
+    defaultGoalId?: string | null
 }
 
 export const AddTransactionModal = ({
@@ -58,12 +61,14 @@ export const AddTransactionModal = ({
     editData = null,
     defaultType = 'EXPENSE',
     defaultCategoryId = null,
+    defaultGoalId = null,
 }: AddTransactionModalProps) => {
 
     const { plan, isFree } = usePlan()
 
     const [serverError, setServerError] = useState<string | null>(null)
     const [categoryId, setCategoryId] = useState<string | null>(null)
+    const [goalId, setGoalId] = useState<string | null>(null)
 
     const isEditMode = editData !== null
 
@@ -112,6 +117,8 @@ export const AddTransactionModal = ({
         setValue('type', initialType)
 
         setCategoryId(editData?.categoryId ?? defaultCategoryId ?? null)
+        setGoalId(editData?.goalId ?? defaultGoalId ?? null)
+
         setServerError(null)
 
     }, [isOpen, editData, defaultType, defaultCategoryId, reset, setValue])
@@ -132,6 +139,7 @@ export const AddTransactionModal = ({
             note: data.note || undefined,
             transactionDate: data.transactionDate,
             categoryId: categoryId || undefined,
+            goalId: goalId || undefined,
         }
 
         try {
@@ -287,6 +295,14 @@ export const AddTransactionModal = ({
                             value={categoryId}
                             onChange={setCategoryId}
                             type={selectedType}
+                        />
+                    </PlanGate>
+
+                    {/* Goal */}
+                    <PlanGate requires="PLUS" fallback={null}>
+                        <GoalSelector
+                            value={goalId}
+                            onChange={setGoalId}
                         />
                     </PlanGate>
 

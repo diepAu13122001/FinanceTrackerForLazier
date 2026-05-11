@@ -25,12 +25,15 @@ const ExpensesPage = () => {
                     <h1 className={DS.heading1}>Giao dịch</h1>
                     <p className={DS.muted}>Lịch sử thu chi của bạn</p>
                 </div>
-                <Button
-                    leftIcon={<Plus size={16} />}
-                    onClick={() => setIsModalOpen(true)}
-                >
-                    Thêm mới
-                </Button>
+
+                <div className="hidden md:block">
+                    <Button
+                        leftIcon={<Plus size={16} />}
+                        onClick={() => setIsModalOpen(true)}
+                    >
+                        Thêm mới
+                    </Button>
+                </div>
             </div>
 
             {/* Danh sách — 👇 truyền filter state xuống */}
@@ -39,12 +42,31 @@ const ExpensesPage = () => {
                 onFilterChange={setActiveFilter}
             />
 
-            {/* Modal — 👇 defaultType theo filter đang chọn */}
+            {/* FAB — chỉ hiện trên mobile, ẩn từ md trở lên */}
+            <button
+                onClick={() => setIsModalOpen(true)}
+                className="
+                    fixed bottom-20 right-4 z-40
+                    md:hidden
+                    w-14 h-14 rounded-full
+                    bg-primary-500 text-white
+                    flex items-center justify-center
+                    shadow-lg shadow-primary-200
+                    hover:bg-primary-600 active:scale-95
+                    transition-all duration-150
+                "
+                aria-label="Thêm giao dịch"
+            >
+                <Plus size={24} />
+            </button>
+
+            {/* Modal — dùng chung cho cả desktop button và mobile FAB */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onSuccess={() => { }}
+                onSuccess={() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }}
                 defaultType={defaultTypeForModal}
+
             />
 
         </div>

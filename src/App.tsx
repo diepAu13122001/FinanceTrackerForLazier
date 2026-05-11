@@ -14,7 +14,7 @@ const ExpensesPage = lazy(() => import('@/pages/ExpensesPage'))
 const AnalyticsPage = lazy(() => import('@/pages/AnalyticsPage'))
 const SettingPsage = lazy(() => import('@/pages/SettingsPage'))
 const CategoriesPage = lazy(() => import('@/pages/CategoriesPage'))
-
+const GoalsPage = lazy(() => import('@/pages/GoalsPage'))
 
 // Placeholder pages — sẽ xây dựng ở các ngày tiếp theo
 const PlaceholderPage = ({ title }: { title: string }) => (
@@ -58,7 +58,7 @@ function App() {
               <Route path="/expenses" element={<ExpensesPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/categories" element={<CategoriesPage />} />
-              <Route path="/goals" element={<PlaceholderPage title="🎯 Mục tiêu" />} />
+              <Route path="/goals" element={<GoalsPage />} />
               <Route path="/ai" element={<PlaceholderPage title="🤖 AI Assistant" />} />
               <Route path="/household" element={<PlaceholderPage title="🏠 Đồ dùng" />} />
               <Route path="/settings" element={<SettingPsage />} />

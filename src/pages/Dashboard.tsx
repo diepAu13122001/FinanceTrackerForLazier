@@ -7,6 +7,7 @@ import { AddTransactionModal } from '@/components/transactions/AddTransactionMod
 import { Plus } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { animations } from '@/lib/animations'
+import { TopGoalsWidget } from '@/components/dashboard/TopGoalsWidget'
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -38,13 +39,16 @@ const Dashboard = () => {
             {/* Summary cards + period selector */}
             <SummaryCards />
 
+            {/* Goal summaries */}
+            <TopGoalsWidget />
+
             {/* Giao dịch gần đây */}
             <div className={`flex flex-col gap-3 ${animations.fadeIn}`}>
                 <h2 className={DS.heading2}>Giao dịch gần đây</h2>
                 <TransactionList />
             </div>
 
-            {/* 👇 THÊM MỚI: FAB — chỉ hiện trên mobile, ẩn từ md trở lên */}
+            {/* FAB — chỉ hiện trên mobile, ẩn từ md trở lên */}
             <button
                 onClick={() => setIsModalOpen(true)}
                 className="

@@ -10,17 +10,28 @@ import { notify, TOAST_MESSAGES } from "@/lib/toast";
 // ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
 export const TRANSACTION_KEYS = {
   all: ["transactions"] as const,
-  list: (page: number, filter: FilterType) =>
-    ["transactions", "list", page, filter] as const,
+  list: (page: number, filter: FilterType, categoryId?: string) =>
+    ["transactions", "list", page, filter, categoryId] as const,
   summary: (params: SummaryParams) =>
     ["transactions", "summary", params] as const,
 };
 
+// helper invalidate tất cả cần thiết sau mỗi mutation
+const invalidateAll = (queryClient: ReturnType<typeof useQueryClient>) => {
+  queryClient.invalidateQueries({ queryKey: ["transactions"] });
+  queryClient.invalidateQueries({ queryKey: ["chart"] }); // 🔄 THÊM: invalidate mọi chart
+  queryClient.invalidateQueries({ queryKey: ["categories"] }); // 🔄 THÊM: update totalAmount
+};
+
 // ─── Hook lấy danh sách giao dịch ─────────────────────────────────────────────
-export const useTransactions = (page = 0, filter: FilterType = "ALL") => {
+export const useTransactions = (
+  page = 0,
+  filter: FilterType = "ALL",
+  categoryId?: string,
+) => {
   return useQuery({
-    queryKey: TRANSACTION_KEYS.list(page, filter),
-    queryFn: () => transactionService.getAll(page, 20, filter),
+    queryKey: TRANSACTION_KEYS.list(page, filter, categoryId),
+    queryFn: () => transactionService.getAll(page, 20, filter, categoryId),
   });
 };
 
@@ -32,9 +43,6 @@ export const useTransactionSummary = (params: SummaryParams = {}) => {
   });
 };
 
-// 🔄 SỬA: bỏ TransactionPayload, dùng TransactionRequest từ types/transaction.ts
-//    → giờ payload có thêm field categoryId tự động
-
 // ─── Hook thêm giao dịch ──────────────────────────────────────────────────────
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
@@ -42,7 +50,7 @@ export const useCreateTransaction = () => {
     mutationFn: (payload: TransactionRequest) =>
       transactionService.create(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      invalidateAll(queryClient);
       notify.success(TOAST_MESSAGES.transaction.created);
     },
     onError: () => {
@@ -63,7 +71,7 @@ export const useUpdateTransaction = () => {
       payload: TransactionRequest;
     }) => transactionService.update(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      invalidateAll(queryClient);
       notify.success(TOAST_MESSAGES.transaction.updated);
     },
     onError: () => {
@@ -78,7 +86,7 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: (id: string) => transactionService.delete(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      invalidateAll(queryClient);
       notify.success(TOAST_MESSAGES.transaction.deleted);
     },
   });

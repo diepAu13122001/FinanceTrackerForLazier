@@ -45,8 +45,8 @@ export const useCreateCategory = () => {
     mutationFn: (request: CategoryRequest) => categoryService.create(request),
 
     onSuccess: (data) => {
-      // Invalidate cả ['categories'] lẫn ['categories', 'EXPENSE']/['categories', 'INCOME']
       queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["chart"] });
       notify.success(`Đã tạo danh mục "${data.name}"`);
     },
 
@@ -68,6 +68,7 @@ export const useUpdateCategory = () => {
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["chart"] });
       notify.success(`Đã cập nhật "${data.name}"`);
     },
 
@@ -88,8 +89,8 @@ export const useDeleteCategory = () => {
 
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORY_KEYS.all });
-      // Cũng invalidate transactions vì transaction.category sẽ thành null
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      queryClient.invalidateQueries({ queryKey: ["chart"] });
       notify.success("Đã xóa danh mục");
     },
 

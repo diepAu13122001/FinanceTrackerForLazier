@@ -1,17 +1,21 @@
 import { api } from "@/lib/api";
 
+// ─── Daily ────────────────────────────────────────────────────────────────────
+
 export interface DailyChartData {
   date: string;
   income: number;
   expense: number;
 }
 
-export interface MonthlyChartData {
-  month: number; // 1-12
-  label: string; // "Th1", "Th2"...
-  income: number;
-  expense: number;
+export interface DailyChartParams {
+  year?: number;
+  month?: number;
+  startMonth?: number;
+  endMonth?: number;
 }
+
+// ─── Monthly ──────────────────────────────────────────────────────────────────
 
 export interface MonthlyChartData {
   month: number;
@@ -20,12 +24,28 @@ export interface MonthlyChartData {
   expense: number;
   balance: number;
 }
-export interface DailyChartParams {
-  year?: number;
-  month?: number;
-  startMonth?: number; // dùng khi filter theo quý
-  endMonth?: number;
+
+// ─── Category chart ───────────────────────────────────────────────────────────
+
+export interface CategoryChartData {
+  categoryId: string | null;
+  categoryName: string;
+  categoryColor: string;
+  totalAmount: number;
+  transactionCount: number;
+  percentage: number;
 }
+
+export interface CategoryChartParams {
+  type: "INCOME" | "EXPENSE";
+  year: number;
+  month?: number; // tháng cụ thể (1-12)
+  startMonth?: number; // bắt đầu quý
+  endMonth?: number; // kết thúc quý
+  // nếu không truyền month/startMonth/endMonth → cả năm
+}
+
+// ─── Service ──────────────────────────────────────────────────────────────────
 
 export const chartService = {
   getDaily: async (
@@ -42,6 +62,16 @@ export const chartService = {
     const response = await api.get<MonthlyChartData[]>(
       "/api/transactions/chart/monthly",
       { params: { year } },
+    );
+    return response.data;
+  },
+
+  getCategoryChart: async (
+    params: CategoryChartParams,
+  ): Promise<CategoryChartData[]> => {
+    const response = await api.get<CategoryChartData[]>(
+      "/api/transactions/chart/categories",
+      { params },
     );
     return response.data;
   },

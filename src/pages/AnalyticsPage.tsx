@@ -2,53 +2,65 @@ import { useState } from 'react'
 import { DS } from '@/lib/design-system'
 import { DailyBarChart } from '@/components/charts/DailyBarChart'
 import { MonthlyTrendChart } from '@/components/charts/MonthlyTrendChart'
+import { CategoryPieChart } from '@/components/charts/CategoryPieChart'
 import { PlanGate } from '@/components/shared/PlanGate'
+import { useCategoryChart } from '@/hooks/useCharts'
 
-// ─── Filter riêng cho từng chart ─────────────────────────────────────────────
-
-const MONTHS = [
-    { value: 1, label: 'Tháng 1' }, { value: 2, label: 'Tháng 2' },
-    { value: 3, label: 'Tháng 3' }, { value: 4, label: 'Tháng 4' },
-    { value: 5, label: 'Tháng 5' }, { value: 6, label: 'Tháng 6' },
-    { value: 7, label: 'Tháng 7' }, { value: 8, label: 'Tháng 8' },
-    { value: 9, label: 'Tháng 9' }, { value: 10, label: 'Tháng 10' },
-    { value: 11, label: 'Tháng 11' }, { value: 12, label: 'Tháng 12' },
-]
-
+const MONTHS = Array.from({ length: 12 }, (_, i) => ({ value: i + 1, label: `Tháng ${i + 1}` }))
 const QUARTERS = [
-    { value: 1, label: 'Quý 1 (T1-T3)' },
-    { value: 2, label: 'Quý 2 (T4-T6)' },
-    { value: 3, label: 'Quý 3 (T7-T9)' },
-    { value: 4, label: 'Quý 4 (T10-T12)' },
+    { value: 1, label: 'Quý 1 (T1–T3)', startMonth: 1, endMonth: 3 },
+    { value: 2, label: 'Quý 2 (T4–T6)', startMonth: 4, endMonth: 6 },
+    { value: 3, label: 'Quý 3 (T7–T9)', startMonth: 7, endMonth: 9 },
+    { value: 4, label: 'Quý 4 (T10–T12)', startMonth: 10, endMonth: 12 },
 ]
-
 const CURRENT_YEAR = new Date().getFullYear()
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR - 1, CURRENT_YEAR - 2]
 
 type DailyFilterMode = 'month' | 'quarter'
+type PieFilterMode = 'month' | 'quarter' | 'year'
 
 const AnalyticsPage = () => {
     const now = new Date()
 
-    // ── Filter cho DailyBarChart ────────────────────────────────────────────────
+    // ── Daily chart filters ──────────────────────────────────────────────────
     const [dailyMode, setDailyMode] = useState<DailyFilterMode>('month')
     const [dailyYear, setDailyYear] = useState(now.getFullYear())
     const [dailyMonth, setDailyMonth] = useState(now.getMonth() + 1)
     const [dailyQuarter, setDailyQuarter] = useState(Math.ceil((now.getMonth() + 1) / 3))
 
-    // ── Filter cho MonthlyTrendChart ────────────────────────────────────────────
+    // ── Monthly trend filters ────────────────────────────────────────────────
     const [trendYear, setTrendYear] = useState(now.getFullYear())
 
-    // Tính startMonth/endMonth khi filter theo quý
+    // ── Pie chart filters ────────────────────────────────────────────────────
+    const [pieMode, setPieMode] = useState<PieFilterMode>('month')  // 👈 THÊM
+    const [pieYear, setPieYear] = useState(now.getFullYear())
+    const [pieMonth, setPieMonth] = useState(now.getMonth() + 1)
+    const [pieQuarter, setPieQuarter] = useState(Math.ceil((now.getMonth() + 1) / 3))
+    const [pieType, setPieType] = useState<'EXPENSE' | 'INCOME'>('EXPENSE')
+
+    // Build params cho pie chart theo mode
+    const pieCategoryParams = (() => {
+        const base = { type: pieType, year: pieYear } as const
+        if (pieMode === 'month') return { ...base, month: pieMonth }
+        if (pieMode === 'quarter') {
+            const q = QUARTERS.find(q => q.value === pieQuarter)!
+            return { ...base, startMonth: q.startMonth, endMonth: q.endMonth }
+        }
+        return base // year mode — no month/startMonth/endMonth
+    })()
+
+    const { data: categoryChartData, isLoading: isLoadingPie } =
+        useCategoryChart(pieCategoryParams)
+
     const quarterToMonths = (q: number) => ({
         startMonth: (q - 1) * 3 + 1,
         endMonth: q * 3,
     })
 
-    // Props truyền vào DailyBarChart
     const dailyChartParams = dailyMode === 'month'
         ? { year: dailyYear, month: dailyMonth }
         : { year: dailyYear, ...quarterToMonths(dailyQuarter) }
+
     return (
         <PlanGate requires="PLUS">
             <div className="max-w-3xl mx-auto p-6 flex flex-col gap-8">
@@ -58,97 +70,117 @@ const AnalyticsPage = () => {
                     <p className={DS.muted}>Xu hướng thu chi của bạn</p>
                 </div>
 
-                {/* ── Chart 1: Thu chi theo ngày ──────────────────────────────────── */}
+                {/* ── Chart 1: Daily ──────────────────────────────────────── */}
                 <div className="flex flex-col gap-3">
                     <div>
                         <h2 className={DS.heading2}>Thu chi theo ngày</h2>
-                        <p className={DS.muted}>So sánh thu và chi từng ngày trong tháng/quý</p>
+                        <p className={DS.muted}>So sánh thu và chi từng ngày</p>
                     </div>
-
-                    {/* Filter: Tháng hoặc Quý */}
                     <div className="flex flex-wrap items-center gap-2">
-
-                        {/* Toggle month/quarter */}
                         <div className="flex p-1 bg-surface-muted rounded-lg">
-                            {([
-                                { key: 'month', label: 'Theo tháng' },
-                                { key: 'quarter', label: 'Theo quý' },
-                            ] as { key: DailyFilterMode; label: string }[]).map(tab => (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setDailyMode(tab.key)}
-                                    className={`
-                    px-3 py-1.5 rounded-md text-sm font-medium transition-colors
-                    ${dailyMode === tab.key
-                                            ? 'bg-white text-text-primary shadow-sm'
-                                            : 'text-text-muted hover:text-text-primary'
-                                        }
-                  `}
-                                >
+                            {([{ key: 'month', label: 'Theo tháng' }, { key: 'quarter', label: 'Theo quý' }] as { key: DailyFilterMode; label: string }[]).map(tab => (
+                                <button key={tab.key} onClick={() => setDailyMode(tab.key)}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${dailyMode === tab.key ? 'bg-white text-text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}>
                                     {tab.label}
                                 </button>
                             ))}
                         </div>
-
-                        {/* Chọn năm */}
-                        <select
-                            value={dailyYear}
-                            onChange={e => setDailyYear(Number(e.target.value))}
-                            className={`${DS.inputBase} w-24`}
-                        >
+                        <select value={dailyYear} onChange={e => setDailyYear(Number(e.target.value))} className={`${DS.inputBase} w-24`}>
                             {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
-
-                        {/* Chọn tháng */}
                         {dailyMode === 'month' && (
-                            <select
-                                value={dailyMonth}
-                                onChange={e => setDailyMonth(Number(e.target.value))}
-                                className={`${DS.inputBase} w-28`}
-                            >
-                                {MONTHS.map(m => (
-                                    <option key={m.value} value={m.value}>{m.label}</option>
-                                ))}
+                            <select value={dailyMonth} onChange={e => setDailyMonth(Number(e.target.value))} className={`${DS.inputBase} w-28`}>
+                                {MONTHS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
                             </select>
                         )}
-
-                        {/* Chọn quý */}
                         {dailyMode === 'quarter' && (
-                            <select
-                                value={dailyQuarter}
-                                onChange={e => setDailyQuarter(Number(e.target.value))}
-                                className={`${DS.inputBase} w-40`}
-                            >
-                                {QUARTERS.map(q => (
-                                    <option key={q.value} value={q.value}>{q.label}</option>
-                                ))}
+                            <select value={dailyQuarter} onChange={e => setDailyQuarter(Number(e.target.value))} className={`${DS.inputBase} w-40`}>
+                                {QUARTERS.map(q => <option key={q.value} value={q.value}>{q.label}</option>)}
                             </select>
                         )}
                     </div>
-
                     <DailyBarChart {...dailyChartParams} />
                 </div>
 
-                {/* ── Chart 2: Xu hướng theo tháng ────────────────────────────────── */}
+                {/* ── Chart 2: Monthly trend ──────────────────────────────── */}
                 <div className="flex flex-col gap-3">
                     <div>
                         <h2 className={DS.heading2}>Xu hướng theo tháng</h2>
                         <p className={DS.muted}>Tổng thu chi mỗi tháng trong năm</p>
                     </div>
-
-                    {/* Filter: chỉ chọn năm */}
                     <div className="flex items-center gap-2">
                         <span className={DS.label}>Năm:</span>
-                        <select
-                            value={trendYear}
-                            onChange={e => setTrendYear(Number(e.target.value))}
-                            className={`${DS.inputBase} w-24`}
-                        >
+                        <select value={trendYear} onChange={e => setTrendYear(Number(e.target.value))} className={`${DS.inputBase} w-24`}>
                             {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
                         </select>
                     </div>
-
                     <MonthlyTrendChart year={trendYear} />
+                </div>
+
+                {/* ── Chart 3: Pie chart ──────────────────────────────────── */}
+                <div className="flex flex-col gap-3">
+                    <div>
+                        <h2 className={DS.heading2}>Phân bổ theo danh mục</h2>
+                        <p className={DS.muted}>Chi tiết từng danh mục</p>
+                    </div>
+
+                    {/* Filter row 1: type */}
+                    <div className="flex flex-wrap items-center gap-2">
+
+                        {/* EXPENSE/INCOME toggle */}
+                        <div className="flex p-1 bg-surface-muted rounded-lg">
+                            {([{ key: 'EXPENSE', label: 'Chi tiêu' }, { key: 'INCOME', label: 'Thu nhập' }] as { key: 'EXPENSE' | 'INCOME'; label: string }[]).map(tab => (
+                                <button key={tab.key} onClick={() => setPieType(tab.key)}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${pieType === tab.key ? 'bg-white text-text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}>
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                        {/* Month/Quarter/Year mode */}
+                        <div className="flex p-1 bg-surface-muted rounded-lg">
+                            {([
+                                { key: 'month', label: 'Tháng' },
+                                { key: 'quarter', label: 'Quý' },
+                                { key: 'year', label: 'Năm' },
+                            ] as { key: PieFilterMode; label: string }[]).map(tab => (
+                                <button key={tab.key} onClick={() => setPieMode(tab.key)}
+                                    className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${pieMode === tab.key ? 'bg-white text-text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'}`}>
+                                    {tab.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Năm */}
+                        <select value={pieYear} onChange={e => setPieYear(Number(e.target.value))} className={`${DS.inputBase} w-24`}>
+                            {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </select>
+
+                        {/* Tháng — chỉ hiện khi mode = month */}
+                        {pieMode === 'month' && (
+                            <select value={pieMonth} onChange={e => setPieMonth(Number(e.target.value))} className={`${DS.inputBase} w-28`}>
+                                {MONTHS.map(m => <option key={m.value} value={m.value}>{m.label}</option>)}
+                            </select>
+                        )}
+
+                        {/* Quý — chỉ hiện khi mode = quarter */}
+                        {pieMode === 'quarter' && (
+                            <select value={pieQuarter} onChange={e => setPieQuarter(Number(e.target.value))} className={`${DS.inputBase} w-40`}>
+                                {QUARTERS.map(q => <option key={q.value} value={q.value}>{q.label}</option>)}
+                            </select>
+                        )}
+                    </div>
+
+                    <CategoryPieChart
+                        data={categoryChartData ?? []}
+                        title={
+                            pieType === 'EXPENSE'
+                                ? 'Phân bổ chi tiêu theo danh mục'
+                                : 'Phân bổ thu nhập theo danh mục'
+                        }
+                        isLoading={isLoadingPie}
+                    />
                 </div>
 
             </div>

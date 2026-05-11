@@ -35,10 +35,11 @@ export const transactionService = {
     page = 0,
     size = 20,
     filter: FilterType = "ALL",
+    categoryId?: string,
   ): Promise<TransactionPage> => {
     const params: Record<string, unknown> = { page, size };
     if (filter !== "ALL") params.type = filter;
-
+    if (categoryId) params.categoryId = categoryId; 
     const response = await api.get<TransactionPage>("/api/transactions", {
       params,
     });

@@ -4,9 +4,17 @@ import { Button } from '@/components/shared/Button'
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal'
 import { Plus } from 'lucide-react'
+import type { FilterType, TransactionType } from '@/types/transaction'
 
 const ExpensesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
+
+    // 🔄 SỬA: lift filter state lên để pass defaultType vào modal
+    const [activeFilter, setActiveFilter] = useState<FilterType>('ALL')
+
+    // Map FilterType → TransactionType để pass vào modal
+    const defaultTypeForModal: TransactionType =
+        activeFilter === 'INCOME' ? 'INCOME' : 'EXPENSE'
 
     return (
         <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
@@ -25,14 +33,18 @@ const ExpensesPage = () => {
                 </Button>
             </div>
 
-            {/* Danh sách */}
-            <TransactionList />
+            {/* Danh sách — 👇 truyền filter state xuống */}
+            <TransactionList
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+            />
 
-            {/* Modal */}
+            {/* Modal — 👇 defaultType theo filter đang chọn */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={() => { }}
+                defaultType={defaultTypeForModal}
             />
 
         </div>

@@ -10,6 +10,7 @@ export interface CategoryResponse {
   type: TransactionType;
   createdAt: string;
   transactionCount?: number; // optional — chỉ có ở /api/categories
+  totalAmount?: number; // 👈 THÊM MỚI: tổng tiền all-time của category
 }
 
 // ── Request gửi lên API ─────────────────────────────────────

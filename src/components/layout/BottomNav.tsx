@@ -2,10 +2,10 @@ import { NavLink } from 'react-router-dom'
 import { usePlan } from '@/hooks/usePlan'
 import {
     LayoutDashboard,
-    ArrowLeftRight,
-    Tag,        // 👈 THÊM: icon Danh mục
+    ShoppingBag,
     BarChart2,
-    Settings,
+    Target,
+    Bot,
     type LucideIcon,
 } from 'lucide-react'
 
@@ -13,34 +13,79 @@ interface BottomNavItem {
     label: string
     href: string
     icon: LucideIcon
+    isFocus?: boolean            // center elevated button
     requiredPlan?: 'PLUS' | 'PREMIUM'
 }
 
-// 🔄 SỬA: 5 items quan trọng nhất — thay AI (chưa build) bằng Danh mục
 const BOTTOM_NAV_ITEMS: BottomNavItem[] = [
     { label: 'Home', href: '/', icon: LayoutDashboard },
-    { label: 'Giao dịch', href: '/expenses', icon: ArrowLeftRight },
-    { label: 'Danh mục', href: '/categories', icon: Tag, requiredPlan: 'PLUS' },
-    { label: 'Phân tích', href: '/analytics', icon: BarChart2, requiredPlan: 'PLUS' },
-    { label: 'Cài đặt', href: '/settings', icon: Settings },
+    { label: 'Đồ dùng', href: '/household', icon: ShoppingBag, requiredPlan: 'PREMIUM' },
+    { label: 'Phân tích', href: '/analytics', icon: BarChart2, isFocus: true, requiredPlan: 'PLUS' },
+    { label: 'Mục tiêu', href: '/goals', icon: Target, requiredPlan: 'PLUS' },
+    { label: 'AI Chat', href: '/ai', icon: Bot, requiredPlan: 'PREMIUM' },
 ]
 
 export const BottomNav = () => {
     const { hasLevel } = usePlan()
 
     return (
-        <nav className="h-16 bg-surface border-t border-surface-border flex items-center shrink-0">
+        <nav className="
+            h-16 bg-surface border-t border-surface-border
+            flex items-end pb-2 px-2 shrink-0
+            safe-area-inset-bottom
+        ">
             {BOTTOM_NAV_ITEMS.map(item => {
                 const Icon = item.icon
                 const isLocked = item.requiredPlan ? !hasLevel(item.requiredPlan) : false
 
+                if (item.isFocus) {
+                    // ── Center elevated FAB-style button ──────────────────────
+                    return (
+                        <div key={item.href} className="flex-1 flex justify-center items-end pb-1">
+                            <NavLink
+                                to={item.href}
+                                className={({ isActive }) => `
+                                    flex flex-col items-center gap-0.5 relative
+                                    -translate-y-3
+                                `}
+                            >
+                                {({ isActive }) => (
+                                    <>
+                                        <div className={`
+                                            w-14 h-14 rounded-2xl
+                                            flex items-center justify-center
+                                            shadow-lg transition-all duration-200
+                                            ${isActive
+                                                ? 'bg-primary-600 scale-105'
+                                                : 'bg-primary-500 hover:bg-primary-600 active:scale-95'
+                                            }
+                                        `}>
+                                            <Icon size={24} color="white" />
+                                            {isLocked && (
+                                                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-amber-400 rounded-full border border-white" />
+                                            )}
+                                        </div>
+                                        <span className={`
+                                            text-xs font-semibold
+                                            ${isActive ? 'text-primary-600' : 'text-text-muted'}
+                                        `}>
+                                            {item.label}
+                                        </span>
+                                    </>
+                                )}
+                            </NavLink>
+                        </div>
+                    )
+                }
+
+                // ── Regular nav item ──────────────────────────────────────────
                 return (
                     <NavLink
                         key={item.href}
                         to={item.href}
                         end={item.href === '/'}
                         className={({ isActive }) => `
-                            flex-1 flex flex-col items-center justify-center gap-0.5 py-2
+                            flex-1 flex flex-col items-center justify-end gap-0.5 pb-1
                             text-xs font-medium transition-colors relative
                             ${isActive ? 'text-primary-600' : 'text-text-muted hover:text-text-secondary'}
                         `}

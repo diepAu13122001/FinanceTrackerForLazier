@@ -1,19 +1,21 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
 import { SummaryCards } from '@/components/dashboard/SummaryCards'
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal'
-import { Plus } from 'lucide-react'
+import { TopGoalsWidget } from '@/components/dashboard/TopGoalsWidget'
+import { Plus, Tag, Settings, ArrowLeftRight } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { animations } from '@/lib/animations'
-import { TopGoalsWidget } from '@/components/dashboard/TopGoalsWidget'
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const user = useAuthStore(s => s.user)
+    const navigate = useNavigate()
+
     return (
-        // 👇 thêm relative để FAB định vị đúng trong scroll context
         <div className="relative max-w-2xl mx-auto p-6 flex flex-col gap-6">
 
             {/* Header */}
@@ -24,22 +26,57 @@ const Dashboard = () => {
                     </h1>
                     <p className={DS.muted}>Đây là tổng quan tài chính của bạn</p>
                 </div>
-
-                {/* 🔄 SỬA: Button desktop — ẩn trên mobile, hiện từ md trở lên */}
                 <div className="hidden md:block">
-                    <Button
-                        leftIcon={<Plus size={16} />}
-                        onClick={() => setIsModalOpen(true)}
-                    >
+                    <Button leftIcon={<Plus size={16} />} onClick={() => setIsModalOpen(true)}>
                         Thêm giao dịch
                     </Button>
                 </div>
             </div>
 
-            {/* Summary cards + period selector */}
+            {/* Quick nav — chỉ hiện trên mobile, thay thế bottom nav items bị ẩn */}
+            <div className="flex gap-2 md:hidden">
+                <button
+                    onClick={() => navigate('/expenses')}
+                    className="
+                        flex-1 flex items-center justify-center gap-2
+                        bg-surface border border-surface-border
+                        rounded-xl py-2.5 text-sm font-medium text-text-secondary
+                        hover:bg-surface-muted hover:text-text-primary transition-colors
+                    "
+                >
+                    <ArrowLeftRight size={15} />
+                    Giao dịch
+                </button>
+                <button
+                    onClick={() => navigate('/categories')}
+                    className="
+                        flex-1 flex items-center justify-center gap-2
+                        bg-surface border border-surface-border
+                        rounded-xl py-2.5 text-sm font-medium text-text-secondary
+                        hover:bg-surface-muted hover:text-text-primary transition-colors
+                    "
+                >
+                    <Tag size={15} />
+                    Danh mục
+                </button>
+                <button
+                    onClick={() => navigate('/settings')}
+                    className="
+                        flex-1 flex items-center justify-center gap-2
+                        bg-surface border border-surface-border
+                        rounded-xl py-2.5 text-sm font-medium text-text-secondary
+                        hover:bg-surface-muted hover:text-text-primary transition-colors
+                    "
+                >
+                    <Settings size={15} />
+                    Cài đặt
+                </button>
+            </div>
+
+            {/* Summary cards */}
             <SummaryCards />
 
-            {/* Goal summaries */}
+            {/* Goals widget */}
             <TopGoalsWidget />
 
             {/* Giao dịch gần đây */}
@@ -48,7 +85,7 @@ const Dashboard = () => {
                 <TransactionList />
             </div>
 
-            {/* FAB — chỉ hiện trên mobile, ẩn từ md trở lên */}
+            {/* FAB mobile */}
             <button
                 onClick={() => setIsModalOpen(true)}
                 className="
@@ -66,13 +103,11 @@ const Dashboard = () => {
                 <Plus size={24} />
             </button>
 
-            {/* Modal — dùng chung cho cả desktop button và mobile FAB */}
             <AddTransactionModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={() => { window.scrollTo({ top: 0, behavior: 'smooth' }) }}
             />
-
         </div>
     )
 }

@@ -11,6 +11,8 @@ import { GOAL_TYPE_CONFIG } from '@/types/goal'
 import type { GoalResponse, GoalType, GoalStatus } from '@/types/goal'
 import { Skeleton } from '@/components/shared/Skeleton'
 import { formatVND } from '@/utils/format'
+import { usePlan } from '@/hooks/usePlan'
+import { UpgradePrompt } from '@/components/shared'
 
 type FilterStatus = 'ACTIVE' | 'ALL' | 'COMPLETED' | 'CANCELLED'
 
@@ -18,8 +20,8 @@ const GoalsPage = () => {
     const [modalOpen, setModalOpen] = useState(false)
     const [editing, setEditing] = useState<GoalResponse | null>(null)
     const [filterStatus, setFilterStatus] = useState<FilterStatus>('ACTIVE')
-
-    const { data: allGoals, isLoading } = useGoals()
+    const { isPlus } = usePlan()
+    const { data: allGoals, isLoading } = useGoals(isPlus)
 
     const openCreate = () => { setEditing(null); setModalOpen(true) }
     const openEdit = (g: GoalResponse) => { setEditing(g); setModalOpen(true) }
@@ -40,7 +42,19 @@ const GoalsPage = () => {
     const totalCurrent = activeGoals.reduce((s, g) => s + g.currentAmount, 0)
     const overLimitDebts = activeGoals.filter(g => g.overLimit).length
     const overallPct = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0
-
+    if (!isPlus) {
+        return (
+            <div className="max-w-3xl mx-auto p-6">
+                <h1 className={DS.heading1}>Nguồn tiền & Mục tiêu</h1>
+                <div className="mt-6">
+                    <UpgradePrompt
+                        requiredPlan="PLUS"
+                        layout="card"
+                    />
+                </div>
+            </div>
+        )
+    }
     return (
         <div className="max-w-3xl mx-auto p-6 flex flex-col gap-6">
 

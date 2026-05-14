@@ -9,6 +9,7 @@ import { TopGoalsWidget } from '@/components/dashboard/TopGoalsWidget'
 import { Plus, Tag, Settings, ArrowLeftRight } from 'lucide-react'
 import { useAuthStore } from '@/stores/authStore'
 import { animations } from '@/lib/animations'
+import { WalletSummaryWidget } from '@/components/dashboard/WalletSummaryWidget'
 
 const Dashboard = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
@@ -76,8 +77,8 @@ const Dashboard = () => {
             {/* Summary cards */}
             <SummaryCards />
 
-            {/* Goals widget */}
-            <TopGoalsWidget />
+            {/* wallets widget */}
+            <WalletSummaryWidget />
 
             {/* Giao dịch gần đây */}
             <div className={`flex flex-col gap-3 ${animations.fadeIn}`}>

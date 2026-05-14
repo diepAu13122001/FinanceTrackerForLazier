@@ -55,6 +55,8 @@ export interface TransactionSummary {
   transactionCount: number;
   transactionLimit: number; // -1 = không giới hạn
   limitReached: boolean;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface SummaryParams {

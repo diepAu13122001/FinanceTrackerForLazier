@@ -176,13 +176,13 @@ export const CategoryFormModal = ({
                                         onClick={() => setSelectedIcon(iconName)}
                                         className="aspect-square rounded-lg flex items-center justify-center transition-all"
                                         style={isSelected ? {
-                                            backgroundColor: selectedColor,  // 🔄 SỬA: solid color thay vì 8% opacity
-                                            color: '#ffffff',                 // 🔄 SỬA: white icon trên màu đặc
+                                            backgroundColor: selectedColor + '25',  // nhạt
+                                            color: selectedColor,          // màu icon = màu danh mục
                                             outline: `2px solid ${selectedColor}`,
                                             outlineOffset: '2px',
                                         } : {
-                                            backgroundColor: '#e5e7eb',  // 🔄 SỬA: gray-200 — tối hơn, thấy rõ icon
-                                            color: '#374151',             // 🔄 SỬA: gray-700 — icon tối
+                                            backgroundColor: '#e5e7eb',
+                                            color: '#374151',
                                         }}
                                     >
                                         <IconComponent size={18} />

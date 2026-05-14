@@ -14,7 +14,7 @@ import { getErrorMessage, getErrorCode } from '@/utils/errorUtils'
 import { animations } from '@/lib/animations'
 import { CategorySelector } from '@/components/categories/CategorySelector'
 import { PlanGate } from '@/components/shared/PlanGate'
-import { GoalSelector } from '@/components/goals/GoalSelector'
+import { WalletSelector } from '@/components/goals/WalletSelector'
 
 const transactionSchema = z.object({
     type: z.enum(['INCOME', 'EXPENSE']),
@@ -69,6 +69,7 @@ export const AddTransactionModal = ({
     const [serverError, setServerError] = useState<string | null>(null)
     const [categoryId, setCategoryId] = useState<string | null>(null)
     const [goalId, setGoalId] = useState<string | null>(null)
+    const [formSubmitted, setFormSubmitted] = useState(false)
 
     const isEditMode = editData !== null
 
@@ -120,6 +121,7 @@ export const AddTransactionModal = ({
         setGoalId(editData?.goalId ?? defaultGoalId ?? null)
 
         setServerError(null)
+        setFormSubmitted(false)
 
     }, [isOpen, editData, defaultType, defaultCategoryId, reset, setValue])
 
@@ -131,8 +133,12 @@ export const AddTransactionModal = ({
     }, [selectedType, isEditMode])
 
     const onSubmit = async (data: TransactionFormData) => {
-        setServerError(null)
+        setFormSubmitted(true)
+        if (!isFree && !goalId) {
+            return  // dừng lại, WalletSelector sẽ hiện error
+        }
 
+        setServerError(null)
         const payload = {
             type: data.type as TransactionType,
             amount: parseSmartVNDInput(data.amount),
@@ -299,10 +305,25 @@ export const AddTransactionModal = ({
                     </PlanGate>
 
                     {/* Goal */}
-                    <PlanGate requires="PLUS" fallback={null}>
-                        <GoalSelector
+
+                    {/* Nguồn tiền (required cho Plus user, optional cho Free) */}
+                    <PlanGate
+                        requires="PLUS"
+                        fallback={
+                            <WalletSelector
+                                value={goalId}
+                                onChange={setGoalId}
+                                required={false}
+                                label="Nguồn tiền (tùy chọn)"
+                            />
+                        }
+                    >
+                        <WalletSelector
                             value={goalId}
                             onChange={setGoalId}
+                            required={true}
+                            label="Nguồn tiền"
+                            error={!goalId && formSubmitted ? 'Vui lòng chọn nguồn tiền' : undefined}
                         />
                     </PlanGate>
 

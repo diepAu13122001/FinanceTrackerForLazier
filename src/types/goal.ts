@@ -1,4 +1,5 @@
-export type GoalType = "SAVINGS" | "DEBT" | "INVESTMENT";
+export type GoalType = "SAVINGS" | "DEBT" | "INVESTMENT" | "NORMAL";
+export type GoalSubtype = "CREDIT_CARD" | "INSTALLMENT";
 export type GoalStatus = "ACTIVE" | "COMPLETED" | "CANCELLED";
 
 export interface GoalResponse {
@@ -7,14 +8,19 @@ export interface GoalResponse {
   icon: string;
   color: string;
   type: GoalType;
+  subtype?: GoalSubtype | null;
   targetAmount: number;
   currentAmount: number;
   deadline: string | null;
   status: GoalStatus;
   createdAt: string;
+  creditLimit?: number | null;
+  billingDate?: number | null;
+  interestRate?: number | null;
   progressPercent: number;
   remainingAmount: number;
   overLimit: boolean;
+  balance: number;
 }
 
 export interface GoalRequest {
@@ -22,15 +28,19 @@ export interface GoalRequest {
   icon?: string;
   color?: string;
   type: GoalType;
-  targetAmount: number;
+  subtype?: GoalSubtype | null;
+  targetAmount?: number;
   deadline?: string | null;
+  creditLimit?: number | null;
+  billingDate?: number | null;
+  interestRate?: number | null;
 }
 
-// Icons phù hợp cho goals
 export const GOAL_ICONS = [
-  "target",
+  "wallet",
   "piggy-bank",
   "credit-card",
+  "banknote",
   "home",
   "car",
   "plane",
@@ -43,7 +53,6 @@ export const GOAL_ICONS = [
   "shield",
   "star",
   "gift",
-  "banknote",
 ] as const;
 
 export type GoalIcon = (typeof GOAL_ICONS)[number];
@@ -57,15 +66,17 @@ export const GOAL_TYPE_CONFIG = {
     bgClass: "bg-success-50",
     textClass: "text-success-600",
     borderClass: "border-success-200",
+    emoji: "🐷",
   },
   DEBT: {
-    label: "Trả nợ",
+    label: "Khoản nợ",
     description: "Theo dõi và ưu tiên trả nợ",
     icon: "credit-card",
     color: "#ef4444",
     bgClass: "bg-danger-50",
     textClass: "text-danger-600",
     borderClass: "border-danger-300",
+    emoji: "⚠️",
   },
   INVESTMENT: {
     label: "Đầu tư",
@@ -75,5 +86,16 @@ export const GOAL_TYPE_CONFIG = {
     bgClass: "bg-blue-50",
     textClass: "text-blue-600",
     borderClass: "border-blue-200",
+    emoji: "📈",
+  },
+  NORMAL: {
+    label: "Ví / Tài khoản",
+    description: "Tiền mặt, tài khoản ngân hàng, ví điện tử...",
+    icon: "wallet",
+    color: "#8b5cf6",
+    bgClass: "bg-violet-50",
+    textClass: "text-violet-600",
+    borderClass: "border-violet-200",
+    emoji: "💰",
   },
 } as const;

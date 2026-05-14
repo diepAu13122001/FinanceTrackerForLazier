@@ -11,12 +11,12 @@ import { usePlan } from '@/hooks/usePlan'
 import { api } from '@/lib/api'
 import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Lock, CreditCard } from 'lucide-react'
+import { User, Lock, CreditCard, Bot } from 'lucide-react'
 import { notify, TOAST_MESSAGES } from '@/lib/toast'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type Tab = 'profile' | 'password' | 'subscription'
+type Tab = 'profile' | 'password' | 'subscription' | 'ai'
 
 // ─── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -110,6 +110,7 @@ const SettingsPage = () => {
         { key: 'profile', label: 'Hồ sơ', icon: User },
         { key: 'password', label: 'Mật khẩu', icon: Lock },
         { key: 'subscription', label: 'Gói dịch vụ', icon: CreditCard },
+        { key: 'ai', label: 'AI', icon: Bot },
     ]
 
     return (
@@ -298,9 +299,85 @@ const SettingsPage = () => {
                     </div>
                 </div>
             )}
+            {/* ── Tab: AI ────────────────────────────────────────────────── */}
+            {activeTab === 'ai' && (
+                <div className="flex flex-col gap-4">
+                    <div className={DS.card}>
+                        <h2 className={`${DS.heading2} mb-2`}>Gemini AI Key</h2>
+                        <p className={`${DS.muted} mb-4`}>
+                            Plus user cần tự nhập Gemini API key để dùng tính năng AI.
+                            Lấy key miễn phí tại{' '}
+                            <a
+                                href="https://aistudio.google.com"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary-600 hover:underline"
+                            >
+                                aistudio.google.com
+                            </a>
+                        </p>
 
-        </div>
+                        {isFree ? (
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                                <p className="text-sm text-amber-700">
+                                    ⭐ Nâng cấp Plus để dùng tính năng AI.
+                                    <button onClick={() => navigate('/pricing')}
+                                        className="ml-1 underline font-medium">
+                                        Nâng cấp ngay
+                                    </button>
+                                </p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                <Input
+                                    label="Gemini API Key"
+                                    type="password"
+                                    placeholder="AIzaSy..."
+                                    helperText="Key được lưu trên thiết bị của bạn, không gửi lên server"
+                                    value={localStorage.getItem('gemini_api_key') ?? ''}
+                                    onChange={e => {
+                                        localStorage.setItem('gemini_api_key', e.target.value)
+                                    }}
+                                />
+                                <div className="flex gap-3">
+                                    <Button
+                                        onClick={() => {
+                                            localStorage.removeItem('gemini_api_key')
+                                            notify.success('Đã xóa API key')
+                                        }}
+                                        variant="ghost"
+                                    >
+                                        Xóa key
+                                    </Button>
+                                    <a
+                                        href="https://aistudio.google.com/app/apikey"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className={DS.btnPrimary}
+                                    >
+                                        🔑 Lấy key miễn phí
+                                    </a>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Hướng dẫn */}
+                    <div className={DS.cardMuted}>
+                        <p className={`${DS.label} mb-2`}>Cách lấy Gemini API Key</p>
+                        <ol className="flex flex-col gap-1 text-sm text-text-secondary list-decimal list-inside">
+                            <li>Vào <strong>aistudio.google.com</strong> (đăng nhập Google)</li>
+                            <li>Click <strong>"Get API Key"</strong> → <strong>"Create API key"</strong></li>
+                            <li>Copy key và paste vào ô trên</li>
+                            <li>Miễn phí 15 requests/phút, 1500/ngày</li>
+                        </ol>
+                    </div>
+                </div >
+            )}
+
+        </div >
     )
 }
+
 
 export default SettingsPage

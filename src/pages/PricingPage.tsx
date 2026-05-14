@@ -4,6 +4,7 @@ import { FeatureRow } from '@/components/pricing/FeatureRow'
 import { DS } from '@/lib/design-system'
 import { usePlan } from '@/hooks/usePlan'
 import { PLAN_CONFIG } from '@/types/plans'
+import { ChevronLeft } from 'lucide-react'
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -91,12 +92,23 @@ const PricingPage = () => {
             <div className="max-w-5xl mx-auto px-4 py-12 flex flex-col gap-12">
 
                 {/* Header */}
+                <div className="flex items-center gap-3 mb-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors"
+                    >
+                        <ChevronLeft size={18} />
+                        Quay lại
+                    </button>
+                </div>
                 <div className="text-center flex flex-col gap-3">
                     <h1 className={`${DS.heading1} text-3xl`}>Chọn gói phù hợp với bạn</h1>
                     <p className={DS.muted}>
                         Bắt đầu miễn phí, nâng cấp khi bạn cần thêm tính năng
                     </p>
                 </div>
+
+
 
                 {/* Banner khi bị redirect từ PlanGate */}
                 {requiredPlan && (

@@ -17,6 +17,12 @@ export interface GoalResponse {
   creditLimit?: number | null;
   billingDate?: number | null;
   interestRate?: number | null;
+  // 👇 THÊM installment fields
+  numberOfPeriods?: number | null;
+  monthlyPayment?: number | null;
+  initialAmount?: number | null;
+  currentPeriod?: number | null; // computed by backend
+  remainingPeriods?: number | null; // computed by backend
   progressPercent: number;
   remainingAmount: number;
   overLimit: boolean;
@@ -33,7 +39,11 @@ export interface GoalRequest {
   deadline?: string | null;
   creditLimit?: number | null;
   billingDate?: number | null;
-  interestRate?: number | null;
+  // interestRate bỏ khỏi form
+  // 👇 THÊM installment
+  numberOfPeriods?: number | null;
+  monthlyPayment?: number | null;
+  initialAmount?: number | null;
 }
 
 export const GOAL_ICONS = [

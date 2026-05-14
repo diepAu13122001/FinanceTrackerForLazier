@@ -21,7 +21,7 @@ const BOTTOM_NAV_ITEMS: BottomNavItem[] = [
     { label: 'Home', href: '/', icon: LayoutDashboard },
     { label: 'Đồ dùng', href: '/household', icon: ShoppingBag, requiredPlan: 'PREMIUM' },
     { label: 'Phân tích', href: '/analytics', icon: BarChart2, isFocus: true, requiredPlan: 'PLUS' },
-    { label: 'Mục tiêu', href: '/goals', icon: Target, requiredPlan: 'PLUS' },
+    { label: 'Nguồn tiền', href: '/goals', icon: Target, requiredPlan: 'PLUS' },
     { label: 'AI Chat', href: '/ai', icon: Bot, requiredPlan: 'PREMIUM' },
 ]
 

@@ -25,7 +25,9 @@ const walletSchema = z.object({
     deadline: z.string().optional(),
     creditLimit: z.string().optional(),
     billingDate: z.string().optional(),
-    interestRate: z.string().optional(),
+    numberOfPeriods: z.string().optional(),
+    monthlyPayment: z.string().optional(),
+    initialAmount: z.string().optional(),
 })
 
 type WalletFormData = z.infer<typeof walletSchema>
@@ -69,7 +71,11 @@ export const GoalFormModal = ({
             creditLimit: editingGoal?.creditLimit
                 ? editingGoal.creditLimit.toLocaleString('vi-VN') : '',
             billingDate: editingGoal?.billingDate?.toString() ?? '',
-            interestRate: editingGoal?.interestRate?.toString() ?? '',
+            numberOfPeriods: editingGoal?.numberOfPeriods?.toString() ?? '',
+            monthlyPayment: editingGoal?.monthlyPayment
+                ? editingGoal.monthlyPayment.toLocaleString('vi-VN') : '',
+            initialAmount: editingGoal?.initialAmount
+                ? editingGoal.initialAmount.toLocaleString('vi-VN') : '',
         })
         setSelectedIcon(editingGoal?.icon ?? GOAL_TYPE_CONFIG[type].icon)
         setSelectedColor(editingGoal?.color ?? GOAL_TYPE_CONFIG[type].color)
@@ -88,7 +94,9 @@ export const GoalFormModal = ({
             deadline: data.deadline || null,
             creditLimit: data.creditLimit ? parseSmartVNDInput(data.creditLimit) : null,
             billingDate: data.billingDate ? parseInt(data.billingDate) : null,
-            interestRate: data.interestRate ? parseFloat(data.interestRate) : null,
+            numberOfPeriods: data.numberOfPeriods ? parseInt(data.numberOfPeriods) : null,
+            monthlyPayment: data.monthlyPayment ? parseSmartVNDInput(data.monthlyPayment) : null,
+            initialAmount: data.initialAmount ? parseSmartVNDInput(data.initialAmount) : null,
         }
         try {
             if (isEditMode && editingGoal) {
@@ -104,20 +112,17 @@ export const GoalFormModal = ({
 
     if (!isOpen) return null
 
+    const cfg = GOAL_TYPE_CONFIG[selectedType]
+
     return (
         <div
             className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
             onClick={e => { if (e.target === e.currentTarget) onClose() }}
         >
-            <div className={`
-                ${DS.card} w-full sm:max-w-md rounded-t-2xl sm:rounded-xl
-                max-h-[90vh] overflow-y-auto
-                ${animations.slideInBottom} sm:${animations.scaleIn}
-            `}>
+            <div className={`${DS.card} w-full sm:max-w-md rounded-t-2xl sm:rounded-xl max-h-[90vh] overflow-y-auto ${animations.slideInBottom} sm:${animations.scaleIn}`}>
+
                 <div className="flex items-center justify-between mb-5">
-                    <h2 className={DS.heading2}>
-                        {isEditMode ? 'Sửa nguồn tiền' : 'Thêm nguồn tiền'}
-                    </h2>
+                    <h2 className={DS.heading2}>{isEditMode ? 'Sửa nguồn tiền' : 'Thêm nguồn tiền'}</h2>
                     <button onClick={onClose} className="p-1 rounded-lg hover:bg-surface-muted text-text-muted">
                         <X size={20} />
                     </button>
@@ -131,39 +136,37 @@ export const GoalFormModal = ({
 
                 <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
 
-                    {/* Type selector — 4 loại */}
+                    {/* Type selector */}
                     <div>
                         <label className={DS.label}>Loại nguồn tiền</label>
                         <input type="hidden" {...register('type')} />
                         <div className="grid grid-cols-2 gap-2 mt-1">
                             {(['NORMAL', 'SAVINGS', 'DEBT', 'INVESTMENT'] as GoalType[]).map(type => {
-                                const cfg = GOAL_TYPE_CONFIG[type]
+                                const c = GOAL_TYPE_CONFIG[type]
+                                const isActive = selectedType === type
                                 return (
                                     <button
                                         key={type}
                                         type="button"
                                         onClick={() => {
                                             setValue('type', type, { shouldValidate: true })
-                                            setSelectedColor(cfg.color)
-                                            setSelectedIcon(cfg.icon)
-                                            // Reset subtype khi đổi type
+                                            setSelectedColor(c.color)
+                                            setSelectedIcon(c.icon)
                                             if (type !== 'DEBT') setValue('subtype', undefined)
                                         }}
                                         className={`
                                             flex items-center gap-2 p-2.5 rounded-xl border-2
                                             text-sm font-semibold transition-all text-left
-                                            ${selectedType === type
-                                                ? `${cfg.borderClass} ${cfg.bgClass} ${cfg.textClass}`
-                                                : 'border-surface-border text-text-muted'
+                                            ${isActive
+                                                ? `${c.borderClass} ${c.bgClass}`
+                                                : 'border-surface-border'
                                             }
                                         `}
+                                        style={isActive ? { color: c.color } : { color: '#6b7280' }}
                                     >
-                                        <span className="text-base">{cfg.emoji}</span>
+                                        <span className="text-base">{c.emoji}</span>
                                         <div>
-                                            <div className="font-bold text-xs">{cfg.label}</div>
-                                            <div className="text-xs opacity-70 font-normal hidden sm:block">
-                                                {cfg.description}
-                                            </div>
+                                            <div className="font-bold text-xs">{c.label}</div>
                                         </div>
                                     </button>
                                 )
@@ -179,25 +182,29 @@ export const GoalFormModal = ({
                             <div className="grid grid-cols-2 gap-2 mt-1">
                                 {([
                                     { key: 'CREDIT_CARD', label: '💳 Thẻ tín dụng', desc: 'Hạn mức + ngày đáo hạn' },
-                                    { key: 'INSTALLMENT', label: '📅 Trả góp', desc: 'Trả hàng tháng' },
-                                ] as { key: 'CREDIT_CARD' | 'INSTALLMENT'; label: string; desc: string }[]).map(st => (
-                                    <button
-                                        key={st.key}
-                                        type="button"
-                                        onClick={() => setValue('subtype', st.key)}
-                                        className={`
-                                            p-2.5 rounded-xl border-2 text-left text-sm
-                                            transition-all font-medium
-                                            ${selectedSubtype === st.key
-                                                ? 'border-danger-300 bg-danger-50 text-danger-700'
-                                                : 'border-surface-border text-text-muted'
-                                            }
-                                        `}
-                                    >
-                                        <div className="font-bold text-xs">{st.label}</div>
-                                        <div className="text-xs opacity-70">{st.desc}</div>
-                                    </button>
-                                ))}
+                                    { key: 'INSTALLMENT', label: '📅 Trả góp', desc: 'Số kỳ + tiền mỗi kỳ' },
+                                ] as { key: 'CREDIT_CARD' | 'INSTALLMENT'; label: string; desc: string }[]).map(st => {
+                                    const isActive = selectedSubtype === st.key
+                                    return (
+                                        <button
+                                            key={st.key}
+                                            type="button"
+                                            onClick={() => setValue('subtype', st.key)}
+                                            className={`
+                                                p-2.5 rounded-xl border-2 text-left text-sm
+                                                transition-all font-medium
+                                                ${isActive
+                                                    ? 'border-danger-300 bg-danger-50'
+                                                    : 'border-surface-border'
+                                                }
+                                            `}
+                                            style={isActive ? { color: '#ef4444' } : { color: '#6b7280' }}
+                                        >
+                                            <div className="font-bold text-xs">{st.label}</div>
+                                            <div className="text-xs opacity-70">{st.desc}</div>
+                                        </button>
+                                    )
+                                })}
                             </div>
                         </div>
                     )}
@@ -207,21 +214,19 @@ export const GoalFormModal = ({
                         placeholder={
                             selectedType === 'NORMAL' ? 'Tiền mặt, MB Bank, MoMo...' :
                                 selectedType === 'SAVINGS' ? 'Mua iPhone, Mua xe...' :
-                                    selectedType === 'DEBT' ? 'Thẻ tín dụng Vietcombank...' :
+                                    selectedType === 'DEBT' ? 'Thẻ Vietcombank, Khoản vay...' :
                                         'Cổ phiếu VIC, Bitcoin...'
                         }
                         error={errors.name?.message}
                         {...register('name')}
                     />
 
-                    {/* SAVINGS / INVESTMENT: target amount */}
+                    {/* SAVINGS / INVESTMENT: target */}
                     {(selectedType === 'SAVINGS' || selectedType === 'INVESTMENT') && (
                         <div>
                             <Input
                                 label="Số tiền mục tiêu (VND)"
-                                type="text"
-                                placeholder="20.000.000"
-                                error={errors.targetAmount?.message}
+                                type="text" placeholder="20.000.000"
                                 {...register('targetAmount')}
                                 onBlur={e => {
                                     const p = parseSmartVNDInput(e.target.value)
@@ -236,14 +241,13 @@ export const GoalFormModal = ({
                         </div>
                     )}
 
-                    {/* DEBT CREDIT_CARD fields */}
+                    {/* DEBT CREDIT_CARD — chỉ hạn mức + ngày đáo hạn, bỏ lãi suất */}
                     {selectedType === 'DEBT' && selectedSubtype === 'CREDIT_CARD' && (
                         <>
                             <div>
                                 <Input
                                     label="Hạn mức thẻ (VND)"
-                                    type="text"
-                                    placeholder="50.000.000"
+                                    type="text" placeholder="50.000.000"
                                     {...register('creditLimit')}
                                     onBlur={e => {
                                         const p = parseSmartVNDInput(e.target.value)
@@ -256,53 +260,82 @@ export const GoalFormModal = ({
                                     </p>
                                 )}
                             </div>
-                            <div className="grid grid-cols-2 gap-3">
-                                <Input
-                                    label="Ngày đáo hạn hàng tháng"
-                                    type="number"
-                                    placeholder="15"
-                                    min="1" max="28"
-                                    helperText="Ngày (1-28) trả tiền mỗi tháng"
-                                    {...register('billingDate')}
-                                />
-                                <Input
-                                    label="Lãi suất (%/tháng)"
-                                    type="number"
-                                    placeholder="2.5"
-                                    step="0.01"
-                                    helperText="Lãi nếu không trả đúng hạn"
-                                    {...register('interestRate')}
-                                />
-                            </div>
+                            <Input
+                                label="Ngày đáo hạn hàng tháng"
+                                type="number" placeholder="15" min="1" max="28"
+                                helperText="Ngày trong tháng phải thanh toán sao kê"
+                                {...register('billingDate')}
+                            />
+                            <p className="text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+                                💡 Phần lãi suất và tổng lãi phải trả sẽ được hiển thị ở phần tổng quan để bạn theo dõi.
+                            </p>
                         </>
                     )}
 
-                    {/* DEBT INSTALLMENT fields */}
+                    {/* DEBT INSTALLMENT */}
                     {selectedType === 'DEBT' && selectedSubtype === 'INSTALLMENT' && (
                         <>
                             <div>
                                 <Input
-                                    label="Tổng số tiền cần trả (VND)"
-                                    type="text"
-                                    placeholder="120.000.000"
-                                    {...register('targetAmount')}
+                                    label="Số tiền vay ban đầu (VND)"
+                                    type="text" placeholder="120.000.000"
+                                    {...register('initialAmount')}
                                     onBlur={e => {
                                         const p = parseSmartVNDInput(e.target.value)
-                                        if (p > 0) setValue('targetAmount', p.toLocaleString('vi-VN'))
+                                        if (p > 0) setValue('initialAmount', p.toLocaleString('vi-VN'))
                                     }}
                                 />
                             </div>
-                            <Input
-                                label="Ngày trả hàng tháng"
-                                type="number"
-                                placeholder="15"
-                                min="1" max="28"
-                                {...register('billingDate')}
-                            />
+                            <div className="grid grid-cols-2 gap-3">
+                                <Input
+                                    label="Số kỳ góp (tháng)"
+                                    type="number" placeholder="12"
+                                    helperText="VD: 12 tháng, 24 tháng..."
+                                    {...register('numberOfPeriods')}
+                                />
+                                <div>
+                                    <Input
+                                        label="Tiền trả mỗi kỳ (VND)"
+                                        type="text" placeholder="5.000.000"
+                                        helperText="Đã bao gồm lãi suất"
+                                        {...register('monthlyPayment')}
+                                        onBlur={e => {
+                                            const p = parseSmartVNDInput(e.target.value)
+                                            if (p > 0) setValue('monthlyPayment', p.toLocaleString('vi-VN'))
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                            {/* Preview tổng số tiền phải trả */}
+                            {watch('numberOfPeriods') && watch('monthlyPayment') && (
+                                <div className="bg-surface-muted rounded-lg px-3 py-2 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-text-muted">Tổng phải trả:</span>
+                                        <span className="font-bold">
+                                            {formatVND(
+                                                parseInt(watch('numberOfPeriods') ?? '0') *
+                                                parseSmartVNDInput(watch('monthlyPayment') ?? '')
+                                            )}
+                                        </span>
+                                    </div>
+                                    {watch('initialAmount') && parseSmartVNDInput(watch('initialAmount') ?? '') > 0 && (
+                                        <div className="flex justify-between mt-1">
+                                            <span className="text-text-muted">Tổng lãi phải trả:</span>
+                                            <span className="font-bold text-danger-600">
+                                                {formatVND(
+                                                    parseInt(watch('numberOfPeriods') ?? '0') *
+                                                    parseSmartVNDInput(watch('monthlyPayment') ?? '') -
+                                                    parseSmartVNDInput(watch('initialAmount') ?? '')
+                                                )}
+                                            </span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </>
                     )}
 
-                    {/* Deadline (SAVINGS, DEBT) */}
+                    {/* Deadline */}
                     {(selectedType === 'SAVINGS' || selectedType === 'DEBT') && (
                         <Input
                             label={selectedType === 'DEBT' ? 'Ngày tất toán (tùy chọn)' : 'Hạn chót (tùy chọn)'}
@@ -311,7 +344,7 @@ export const GoalFormModal = ({
                         />
                     )}
 
-                    {/* Icon picker */}
+                    {/* Icon picker — FIX màu: dùng color của type thay vì white */}
                     <div>
                         <label className={DS.label}>Icon</label>
                         <div className="grid grid-cols-8 gap-2 mt-2">
@@ -320,12 +353,15 @@ export const GoalFormModal = ({
                                 const IconComp = (Icons as any)[toPascalCase(iconName)] || Icons.Wallet
                                 const isSel = iconName === selectedIcon
                                 return (
-                                    <button key={iconName} type="button"
+                                    <button
+                                        key={iconName}
+                                        type="button"
                                         onClick={() => setSelectedIcon(iconName)}
                                         className="aspect-square rounded-lg flex items-center justify-center transition-all"
                                         style={isSel ? {
-                                            backgroundColor: selectedColor + '25',  // 🔄 SỬA: nhạt hơn để icon thấy rõ
-                                            color: 'black',                    // 🔄 SỬA: dùng màu thay vì white
+                                            backgroundColor: selectedColor + '20',
+                                            // 🔄 FIX: dùng color của selectedColor thay vì '#fff'
+                                            color: selectedColor,
                                             outline: `2px solid ${selectedColor}`,
                                             outlineOffset: '2px',
                                         } : {
@@ -344,13 +380,19 @@ export const GoalFormModal = ({
                         <label className={DS.label}>Màu sắc</label>
                         <div className="grid grid-cols-10 gap-2 mt-2">
                             {CATEGORY_COLORS.map(color => (
-                                <button key={color} type="button"
+                                <button
+                                    key={color}
+                                    type="button"
                                     onClick={() => setSelectedColor(color)}
-                                    className={`aspect-square rounded-full transition-transform ${color === selectedColor
-                                        ? 'ring-2 ring-offset-2 ring-text-primary scale-110'
-                                        : 'hover:scale-110'
-                                        }`}
-                                    style={{ backgroundColor: color }} />
+                                    className={`
+                                        aspect-square rounded-full transition-transform
+                                        ${color === selectedColor
+                                            ? 'ring-2 ring-offset-2 ring-text-primary scale-110'
+                                            : 'hover:scale-110'
+                                        }
+                                    `}
+                                    style={{ backgroundColor: color }}
+                                />
                             ))}
                         </div>
                     </div>

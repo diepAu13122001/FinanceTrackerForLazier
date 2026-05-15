@@ -7,7 +7,7 @@ import type {
 } from "@/types/transaction";
 import { notify, TOAST_MESSAGES } from "@/lib/toast";
 
-// ─── Query Keys — dùng để invalidate cache ────────────────────────────────────
+// ─── Query Keys ───────────────────────────────────────────────────────────────
 export const TRANSACTION_KEYS = {
   all: ["transactions"] as const,
   list: (page: number, filter: FilterType, categoryId?: string) =>
@@ -16,15 +16,25 @@ export const TRANSACTION_KEYS = {
     ["transactions", "summary", params] as const,
 };
 
-// helper invalidate tất cả cần thiết sau mỗi mutation
+/**
+ * FIX LỖI 3: Thêm ["goals"] vào invalidation list.
+ *
+ * Lý do: wallet balance được tính từ transactions link vào goal/wallet.
+ * Sau mỗi transaction thay đổi → backend recalculate lại balance →
+ * frontend cần refetch ["goals"] để hiển thị balance mới ngay lập tức.
+ *
+ * Nếu không có dòng này, balance trên wallet card sẽ chỉ cập nhật
+ * sau khi reload page (staleTime hết hạn).
+ */
 const invalidateAll = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["transactions"] });
   queryClient.invalidateQueries({ queryKey: ["chart"] });
   queryClient.invalidateQueries({ queryKey: ["categories"] });
-  queryClient.invalidateQueries({ queryKey: ["goals"] });  
+  queryClient.invalidateQueries({ queryKey: ["goals"] }); // ← bao gồm cả wallet cards
 };
 
-// ─── Hook lấy danh sách giao dịch ─────────────────────────────────────────────
+// ─── Queries ──────────────────────────────────────────────────────────────────
+
 export const useTransactions = (
   page = 0,
   filter: FilterType = "ALL",
@@ -36,7 +46,6 @@ export const useTransactions = (
   });
 };
 
-// ─── Hook lấy summary ─────────────────────────────────────────────────────────
 export const useTransactionSummary = (params: SummaryParams = {}) => {
   return useQuery({
     queryKey: ["transactions", "summary", params],
@@ -44,7 +53,8 @@ export const useTransactionSummary = (params: SummaryParams = {}) => {
   });
 };
 
-// ─── Hook thêm giao dịch ──────────────────────────────────────────────────────
+// ─── Mutations ────────────────────────────────────────────────────────────────
+
 export const useCreateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -60,7 +70,6 @@ export const useCreateTransaction = () => {
   });
 };
 
-// ─── Hook sửa giao dịch ───────────────────────────────────────────────────────
 export const useUpdateTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -81,7 +90,6 @@ export const useUpdateTransaction = () => {
   });
 };
 
-// ─── Hook xóa giao dịch ───────────────────────────────────────────────────────
 export const useDeleteTransaction = () => {
   const queryClient = useQueryClient();
   return useMutation({

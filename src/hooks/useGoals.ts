@@ -13,20 +13,18 @@ const invalidateGoals = (qc: ReturnType<typeof useQueryClient>) => {
   qc.invalidateQueries({ queryKey: GOAL_KEYS.all });
 };
 
-export const useGoals = (enabled = true) =>
+export const useGoals = () =>
   useQuery({
     queryKey: GOAL_KEYS.all,
     queryFn: goalService.getAll,
     staleTime: 2 * 60 * 1000,
-    enabled,
   });
 
-export const useActiveGoals = (enabled = true) =>
+export const useActiveGoals = () =>
   useQuery({
     queryKey: GOAL_KEYS.active,
     queryFn: goalService.getActive,
     staleTime: 2 * 60 * 1000,
-    enabled,
   });
 
 export const useCreateGoal = () => {

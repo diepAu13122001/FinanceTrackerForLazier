@@ -194,9 +194,9 @@ export const WalletFormModal = ({ isOpen, onClose, editingWallet, defaultType = 
                             {watch('numberOfPeriods') && watch('monthlyPayment') && (
                                 <div className="bg-surface-muted rounded-lg px-3 py-2 text-xs">
                                     <div className="flex justify-between">
-                                        <span className="text-text-muted">Tổng phải trả:</span>
-                                        <span className="font-bold">
-                                            {formatVND(parseInt(watch('numberOfPeriods') ?? '0') * parseSmartVNDInput(watch('monthlyPayment') ?? ''))}
+                                        <span className="text-text-muted">Số tiền chênh lệch:</span>
+                                        <span className="font-bold text-danger-600">
+                                            {formatVND(parseInt(watch('numberOfPeriods') ?? '0') * parseSmartVNDInput(watch('monthlyPayment') ?? '') - (watch('initialAmount') ? parseSmartVNDInput(watch('initialAmount') ?? '') : 0))}
                                         </span>
                                     </div>
                                 </div>

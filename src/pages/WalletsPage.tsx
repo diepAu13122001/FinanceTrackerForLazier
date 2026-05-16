@@ -63,7 +63,7 @@ const WalletsPage = () => {
       </div>
 
       {/* Debt danger banner */}
-      {overLimitDebts > 0 && (
+      {/* {overLimitDebts > 0 && (
         <div className="bg-danger-50 border-2 border-danger-300 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="text-2xl">⚠️</span>
           <div>
@@ -71,7 +71,7 @@ const WalletsPage = () => {
             <p className="text-xs text-danger-600 mt-0.5">Hãy ưu tiên trả nợ ngay.</p>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Summary */}
       {!isLoading && activeWallets.length > 0 && (

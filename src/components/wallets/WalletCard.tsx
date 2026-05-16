@@ -127,7 +127,7 @@ export const WalletCard = ({ wallet, onEdit }: WalletCardProps) => {
                             <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div className="bg-surface-muted rounded-lg px-2 py-1.5">
                                     <div className="text-text-muted">Mỗi kỳ</div>
-                                    <div className="font-bold">{wallet.monthlyPayment ? formatVND(wallet.monthlyPayment) : '—'}</div>
+                                    <div className="font-bold text-danger-600">{wallet.monthlyPayment ? formatVND(wallet.monthlyPayment) : '—'}</div>
                                 </div>
                                 <div className="bg-surface-muted rounded-lg px-2 py-1.5">
                                     <div className="text-text-muted">Đã trả</div>

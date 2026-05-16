@@ -3,7 +3,7 @@ import { ChevronDown, Wallet, Plus } from 'lucide-react'
 import * as Icons from 'lucide-react'
 import { useActiveWallets } from '@/hooks/useWallets'
 import { DS } from '@/lib/design-system'
-import { WALLET_TYPE_CONFIG } from '@/types/wallet'
+import { WALLET_TYPE_CONFIG, type WalletType } from '@/types/wallet'
 import { formatVND } from '@/utils/format'
 import { useNavigate } from 'react-router-dom'
 import { usePlan } from '@/hooks/usePlan'
@@ -90,7 +90,7 @@ export const WalletSelector = ({
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-1.5">
-                                            <span className="text-sm font-semibold truncate">{wallet.name}</span>
+                                            <span className="text-sm font-semibold text-text-primary truncate">{wallet.name}</span>
                                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${config.bgClass} ${config.textClass}`}>
                                                 {config.label}
                                             </span>

@@ -37,6 +37,7 @@ type EditTransactionData = {
     note: string | null
     transactionDate: string
     categoryId: string | null   // string ID, không phải object
+    walletId: string | null
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -125,6 +126,7 @@ export const TransactionList = ({
                                                 note: t.note,
                                                 transactionDate: t.transactionDate,
                                                 categoryId: t.category?.id ?? null,
+                                                walletId: t.wallet?.id ?? null,
                                             })
                                             setIsModal(true)
                                         }}

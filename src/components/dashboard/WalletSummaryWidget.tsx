@@ -124,18 +124,6 @@ export const WalletSummaryWidget = () => {
                                     Nợ: {formatVND(wallet.currentAmount)}
                                 </div>
                             )}
-                            {/* Balance */}
-                            {wallet.type === 'NORMAL' && (
-                                <div className={`text-xs font-bold ${wallet.balance >= 0 ? 'text-success-600' : 'text-danger-600'
-                                    }`}>
-                                    {formatVND(wallet.balance)}
-                                </div>
-                            )}
-                            {wallet.type === 'DEBT' && (
-                                <div className="text-xs font-bold text-danger-600">
-                                    Nợ: {formatVND(wallet.currentAmount)}
-                                </div>
-                            )}
                         </div>
                     )
                 })}

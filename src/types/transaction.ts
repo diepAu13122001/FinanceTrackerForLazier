@@ -1,5 +1,5 @@
 import type { CategoryResponse } from "./category";
-import type { GoalResponse } from "./goal";
+import type { WalletResponse } from "./wallet";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ export interface TransactionRequest {
   transactionDate: string; // "YYYY-MM-DD"
   currency?: string;
   categoryId?: string | null; // null/undefined = không phân loại
-  goalId?: string | null;
+  walletId?: string | null;
 }
 
 // ─── Response từ API ──────────────────────────────────────────────────────────
@@ -30,7 +30,7 @@ export interface TransactionResponse {
   source: string;
   createdAt: string;
   category: CategoryResponse | null; // null nếu chưa phân loại
-  goal: GoalResponse | null;
+  wallet: WalletResponse | null; // null nếu không liên kết nguồn tiền
 }
 
 // ─── Pagination ───────────────────────────────────────────────────────────────

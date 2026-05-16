@@ -2,11 +2,11 @@ import { useNavigate } from 'react-router-dom'
 import { Wallet, ChevronRight, Plus } from 'lucide-react'
 import * as Icons from 'lucide-react'
 import { DS } from '@/lib/design-system'
-import { useActiveGoals } from '@/hooks/useGoals'
 import { usePlan } from '@/hooks/usePlan'
-import { GOAL_TYPE_CONFIG } from '@/types/goal'
 import { formatVND } from '@/utils/format'
 import { Skeleton } from '@/components/shared/Skeleton'
+import { useActiveWallets } from '@/hooks/useWallets'
+import { WALLET_TYPE_CONFIG } from '@/types/wallet'
 
 const toPascalCase = (s: string) =>
     s.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')
@@ -14,7 +14,7 @@ const toPascalCase = (s: string) =>
 export const WalletSummaryWidget = () => {
     const navigate = useNavigate()
     const { isPlus } = usePlan()
-    const { data: wallets, isLoading } = useActiveGoals(isPlus)  // Chỉ fetch wallets nếu user là Plus
+    const { data: wallets, isLoading } = useActiveWallets(isPlus)
 
     if (!isPlus) return null  // Free user không fetch
 
@@ -37,7 +37,7 @@ export const WalletSummaryWidget = () => {
                     <span className="text-sm text-text-muted">Chưa có nguồn tiền nào</span>
                 </div>
                 <button
-                    onClick={() => navigate('/goals')}
+                    onClick={() => navigate('/wallets')}
                     className="text-sm text-primary-600 flex items-center gap-1"
                 >
                     <Plus size={14} /> Thêm
@@ -68,7 +68,7 @@ export const WalletSummaryWidget = () => {
                         </div>
                     </div>
                     <button
-                        onClick={() => navigate('/goals')}
+                        onClick={() => navigate('/wallets')}
                         className="text-primary-600 hover:text-primary-700"
                     >
                         <ChevronRight size={18} />
@@ -79,14 +79,14 @@ export const WalletSummaryWidget = () => {
             {/* Wallet cards — horizontal scroll */}
             <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
                 {wallets.map(wallet => {
-                    const config = GOAL_TYPE_CONFIG[wallet.type]
+                    const config = WALLET_TYPE_CONFIG[wallet.type]
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const IconComp = (Icons as any)[toPascalCase(wallet.icon)] || Wallet
 
                     return (
                         <div
                             key={wallet.id}
-                            onClick={() => navigate('/goals')}
+                            onClick={() => navigate('/wallets')}
                             className="
                                 flex-shrink-0 w-32 rounded-xl p-3
                                 border border-surface-border cursor-pointer
@@ -124,21 +124,17 @@ export const WalletSummaryWidget = () => {
                                     Nợ: {formatVND(wallet.currentAmount)}
                                 </div>
                             )}
-                            {(wallet.type === 'SAVINGS' || wallet.type === 'INVESTMENT') && (
-                                <>
-                                    <div className="text-xs font-bold" style={{ color: wallet.color }}>
-                                        {formatVND(wallet.currentAmount)}
-                                    </div>
-                                    <div className="h-1 bg-surface-muted rounded-full mt-1.5 overflow-hidden">
-                                        <div
-                                            className="h-full rounded-full"
-                                            style={{
-                                                width: `${Math.min(wallet.progressPercent, 100)}%`,
-                                                backgroundColor: wallet.color,
-                                            }}
-                                        />
-                                    </div>
-                                </>
+                            {/* Balance */}
+                            {wallet.type === 'NORMAL' && (
+                                <div className={`text-xs font-bold ${wallet.balance >= 0 ? 'text-success-600' : 'text-danger-600'
+                                    }`}>
+                                    {formatVND(wallet.balance)}
+                                </div>
+                            )}
+                            {wallet.type === 'DEBT' && (
+                                <div className="text-xs font-bold text-danger-600">
+                                    Nợ: {formatVND(wallet.currentAmount)}
+                                </div>
                             )}
                         </div>
                     )
@@ -146,7 +142,7 @@ export const WalletSummaryWidget = () => {
 
                 {/* Nút thêm ví */}
                 <button
-                    onClick={() => navigate('/goals')}
+                    onClick={() => navigate('/wallets')}
                     className="
                         flex-shrink-0 w-20 rounded-xl border border-dashed border-surface-border
                         flex flex-col items-center justify-center gap-1

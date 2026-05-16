@@ -7,6 +7,7 @@ import {
     Target,
     Bot,
     type LucideIcon,
+    Wallet,
 } from 'lucide-react'
 
 interface BottomNavItem {
@@ -21,7 +22,7 @@ const BOTTOM_NAV_ITEMS: BottomNavItem[] = [
     { label: 'Home', href: '/', icon: LayoutDashboard },
     { label: 'Đồ dùng', href: '/household', icon: ShoppingBag, requiredPlan: 'PREMIUM' },
     { label: 'Phân tích', href: '/analytics', icon: BarChart2, isFocus: true, requiredPlan: 'PLUS' },
-    { label: 'Nguồn tiền', href: '/goals', icon: Target, requiredPlan: 'PLUS' },
+    { label: 'Nguồn tiền', href: '/wallets', icon: Wallet, requiredPlan: 'PLUS' },
     { label: 'AI Chat', href: '/ai', icon: Bot, requiredPlan: 'PREMIUM' },
 ]
 
@@ -41,13 +42,11 @@ export const BottomNav = () => {
                 if (item.isFocus) {
                     // ── Center elevated FAB-style button ──────────────────────
                     return (
-                        <div key={item.href} className="flex-1 flex justify-center items-end pb-1">
+                        <div key={item.href} className="flex-1 flex justify-center items-end">
                             <NavLink
                                 to={item.href}
                                 className={({ isActive }) => `
-                                    flex flex-col items-center gap-0.5 relative
-                                    -translate-y-3
-                                `}
+                                    flex flex-col items-center gap-0.5 relative`}
                             >
                                 {({ isActive }) => (
                                     <>

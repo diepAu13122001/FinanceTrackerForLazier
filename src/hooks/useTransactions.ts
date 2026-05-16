@@ -16,21 +16,11 @@ export const TRANSACTION_KEYS = {
     ["transactions", "summary", params] as const,
 };
 
-/**
- * FIX LỖI 3: Thêm ["goals"] vào invalidation list.
- *
- * Lý do: wallet balance được tính từ transactions link vào goal/wallet.
- * Sau mỗi transaction thay đổi → backend recalculate lại balance →
- * frontend cần refetch ["goals"] để hiển thị balance mới ngay lập tức.
- *
- * Nếu không có dòng này, balance trên wallet card sẽ chỉ cập nhật
- * sau khi reload page (staleTime hết hạn).
- */
 const invalidateAll = (queryClient: ReturnType<typeof useQueryClient>) => {
   queryClient.invalidateQueries({ queryKey: ["transactions"] });
   queryClient.invalidateQueries({ queryKey: ["chart"] });
   queryClient.invalidateQueries({ queryKey: ["categories"] });
-  queryClient.invalidateQueries({ queryKey: ["goals"] }); // ← bao gồm cả wallet cards
+  queryClient.invalidateQueries({ queryKey: ["wallets"] });
 };
 
 // ─── Queries ──────────────────────────────────────────────────────────────────

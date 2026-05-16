@@ -26,7 +26,10 @@ const WalletsPage = () => {
   if (!isPlus) {
     return (
       <div className="max-w-3xl mx-auto p-6">
-        <h1 className={DS.heading1}>Nguồn tiền</h1>
+        <div>
+          <h1 className={DS.heading1}>Nguồn tiền</h1>
+          <p className={DS.muted}>Quản lý ví và khoản nợ của bạn</p>
+        </div>
         <div className="mt-6"><UpgradePrompt requiredPlan="PLUS" layout="card" /></div>
       </div>
     )
@@ -61,17 +64,6 @@ const WalletsPage = () => {
           <Button leftIcon={<Plus size={16} />} onClick={() => openCreate(activeTab)}>Thêm mới</Button>
         </div>
       </div>
-
-      {/* Debt danger banner */}
-      {/* {overLimitDebts > 0 && (
-        <div className="bg-danger-50 border-2 border-danger-300 rounded-xl px-4 py-3 flex items-center gap-3">
-          <span className="text-2xl">⚠️</span>
-          <div>
-            <p className="text-sm font-bold text-danger-700">{overLimitDebts} khoản nợ vượt hạn mức!</p>
-            <p className="text-xs text-danger-600 mt-0.5">Hãy ưu tiên trả nợ ngay.</p>
-          </div>
-        </div>
-      )} */}
 
       {/* Summary */}
       {!isLoading && activeWallets.length > 0 && (
@@ -117,22 +109,22 @@ const WalletsPage = () => {
         })}
       </div>
 
-      {isLoading && <div className="flex flex-col gap-3">{[1,2].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>}
+      {isLoading && <div className="flex flex-col gap-3">{[1, 2].map(i => <Skeleton key={i} className="h-28 rounded-xl" />)}</div>}
 
       {activeTab === 'NORMAL' && !isLoading && (
         normalWallets.length === 0
           ? <EmptyState title="Chưa có tài khoản nào" desc="Tạo ví tiền mặt, ngân hàng, ví điện tử..." onAdd={() => openCreate('NORMAL')} />
           : <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {normalWallets.map(w => <WalletCard key={w.id} wallet={w} onEdit={() => openEdit(w)} />)}
-            </div>
+            {normalWallets.map(w => <WalletCard key={w.id} wallet={w} onEdit={() => openEdit(w)} />)}
+          </div>
       )}
 
       {activeTab === 'DEBT' && !isLoading && (
         debtWallets.length === 0
           ? <EmptyState title="Chưa có khoản nợ nào" desc="Theo dõi thẻ tín dụng và khoản trả góp..." onAdd={() => openCreate('DEBT')} />
           : <div className="flex flex-col gap-3">
-              {debtWallets.map(w => <WalletCard key={w.id} wallet={w} onEdit={() => openEdit(w)} />)}
-            </div>
+            {debtWallets.map(w => <WalletCard key={w.id} wallet={w} onEdit={() => openEdit(w)} />)}
+          </div>
       )}
 
       <button onClick={() => openCreate(activeTab)}

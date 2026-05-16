@@ -3,8 +3,8 @@ import { ChevronDown, Plus } from 'lucide-react'
 import { useCategories } from '@/hooks/useCategories'
 import { CategoryBadge } from './CategoryBadge'
 import { DS } from '@/lib/design-system'
-import type { TransactionType } from '@/types/category'
 import { Link } from 'react-router-dom'
+import type { TransactionType } from '@/types/transaction'
 
 interface CategorySelectorProps {
     value: string | null

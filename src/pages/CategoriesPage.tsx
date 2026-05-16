@@ -1,5 +1,3 @@
-// 🔄 SỬA: thêm state cho drawer + import
-
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { Button } from '@/components/shared/Button'
@@ -7,22 +5,40 @@ import { DS } from '@/lib/design-system'
 import { useCategories } from '@/hooks/useCategories'
 import { CategoryCard } from '@/components/categories/CategoryCard'
 import { CategoryFormModal } from '@/components/categories/CategoryFormModal'
-import { CategoryTransactionsDrawer } from '@/components/categories/CategoryTransactionsDrawer'  // 👈 THÊM
+import { CategoryTransactionsDrawer } from '@/components/categories/CategoryTransactionsDrawer'
 import { animations } from '@/lib/animations'
-import type { CategoryResponse, TransactionType } from '@/types/category'
+import type { CategoryResponse } from '@/types/category'
+import type { TransactionType } from '@/types/transaction'
+import { usePlan } from '@/hooks/usePlan'
+import { UpgradePrompt } from '@/components/shared'
 
 const CategoriesPage = () => {
+
+    const { isPlus } = usePlan()
+
+    if (!isPlus) {
+        return (
+            <div className="max-w-3xl mx-auto p-6">
+                <div>
+                    <h1 className={DS.heading1}>Danh mục</h1>
+                    <p className={DS.muted}>Bấm vào danh mục để xem giao dịch</p>
+                </div>
+                <div className="mt-6"><UpgradePrompt requiredPlan="PLUS" layout="card" /></div>
+            </div>
+        )
+    }
+
     const [filterType, setFilterType] = useState<TransactionType | 'ALL'>('ALL')
     const [modalOpen, setModalOpen] = useState(false)
     const [editing, setEditing] = useState<CategoryResponse | null>(null)
-    const [drawerCategory, setDrawerCategory] = useState<CategoryResponse | null>(null)  // 👈 THÊM
+    const [drawerCategory, setDrawerCategory] = useState<CategoryResponse | null>(null)
 
     const typeParam = filterType === 'ALL' ? undefined : filterType
     const { data: categories, isLoading } = useCategories(typeParam)
 
     const openCreateModal = () => { setEditing(null); setModalOpen(true) }
     const openEditModal = (cat: CategoryResponse) => { setEditing(cat); setModalOpen(true) }
-    const openDrawer = (cat: CategoryResponse) => setDrawerCategory(cat)  // 👈 THÊM
+    const openDrawer = (cat: CategoryResponse) => setDrawerCategory(cat)
 
     const incomeCategories = categories?.filter(c => c.type === 'INCOME') ?? []
     const expenseCategories = categories?.filter(c => c.type === 'EXPENSE') ?? []
@@ -88,7 +104,7 @@ const CategoriesPage = () => {
                                         key={cat.id}
                                         category={cat}
                                         onEdit={() => openEditModal(cat)}
-                                        onClick={() => openDrawer(cat)}  // 👈 THÊM
+                                        onClick={() => openDrawer(cat)}
                                     />
                                 ))}
                             </div>
@@ -104,7 +120,7 @@ const CategoriesPage = () => {
                                         key={cat.id}
                                         category={cat}
                                         onEdit={() => openEditModal(cat)}
-                                        onClick={() => openDrawer(cat)}  // 👈 THÊM
+                                        onClick={() => openDrawer(cat)}
                                     />
                                 ))}
                             </div>
@@ -128,7 +144,6 @@ const CategoriesPage = () => {
                 defaultType={filterType === 'ALL' ? 'EXPENSE' : filterType}
             />
 
-            {/* 👇 THÊM: Drawer */}
             <CategoryTransactionsDrawer
                 category={drawerCategory}
                 onClose={() => setDrawerCategory(null)}

@@ -28,6 +28,12 @@ const TABS: { key: FilterType; label: string; activeClass: string }[] = [
         label: '↓ Chi tiêu',
         activeClass: 'bg-danger-500 text-white shadow-sm',
     },
+
+    { 
+        key: 'TRANSFER', 
+        label: '⇄ Chuyển', 
+        activeClass: 'bg-amber-400 text-white shadow-sm' 
+    },
 ]
 
 export const FilterTabs = ({ active, onChange, counts }: FilterTabsProps) => (

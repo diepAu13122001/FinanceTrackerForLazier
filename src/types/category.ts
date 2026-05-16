@@ -1,5 +1,4 @@
-// Khớp với enum Transaction.TransactionType ở backend
-export type TransactionType = "INCOME" | "EXPENSE";
+import type { TransactionType } from "./transaction";
 
 // ── Response từ API ─────────────────────────────────────────
 export interface CategoryResponse {

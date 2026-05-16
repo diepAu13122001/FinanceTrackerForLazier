@@ -3,19 +3,31 @@ import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
 import { TransactionList } from '@/components/transactions/TransactionList'
 import { AddTransactionModal } from '@/components/transactions/AddTransactionModal'
-import { Plus } from 'lucide-react'
+import { Download, Plus } from 'lucide-react'
 import type { FilterType, TransactionType } from '@/types/transaction'
+import { exportService } from '@/services/exportService'
+import { notify } from '@/lib/toast'
 
 const ExpensesPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false)
-
-    // 🔄 SỬA: lift filter state lên để pass defaultType vào modal
     const [activeFilter, setActiveFilter] = useState<FilterType>('ALL')
+    const [isExporting, setIsExporting] = useState(false);
 
     // Map FilterType → TransactionType để pass vào modal
     const defaultTypeForModal: TransactionType =
-        activeFilter === 'INCOME' ? 'INCOME' : 'EXPENSE'
+        activeFilter === 'INCOME' ? 'INCOME' : 'EXPENSE';
 
+    const handleExport = async () => {
+        setIsExporting(true);
+        try {
+            await exportService.downloadExcel();
+            notify.success('Xuất Excel thành công');
+        } catch {
+            notify.error('Xuất thất bại, thử lại sau');
+        } finally {
+            setIsExporting(false);
+        }
+    };
     return (
         <div className="max-w-2xl mx-auto p-6 flex flex-col gap-6">
 
@@ -25,15 +37,29 @@ const ExpensesPage = () => {
                     <h1 className={DS.heading1}>Giao dịch</h1>
                     <p className={DS.muted}>Lịch sử thu chi của bạn</p>
                 </div>
+                <div className="flex items-center gap-2">
+                    <div className="hidden md:block">
+                        <Button
+                            leftIcon={<Plus size={16} />}
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Thêm mới
+                        </Button>
 
-                <div className="hidden md:block">
-                    <Button
-                        leftIcon={<Plus size={16} />}
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        Thêm mới
-                    </Button>
+                    </div>
+
+                    <div>
+                        <Button
+                            variant="ghost"
+                            leftIcon={<Download size={16} />}
+                            loading={isExporting}
+                            onClick={handleExport}
+                        >
+                            Xuất Excel
+                        </Button>
+                    </div>
                 </div>
+
             </div>
 
             {/* Danh sách — 👇 truyền filter state xuống */}

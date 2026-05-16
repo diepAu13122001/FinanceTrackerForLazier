@@ -6,13 +6,12 @@ import { FilterTabs } from './FilterTabs'
 import { DS } from '@/lib/design-system'
 import { Button } from '@/components/shared/Button'
 import { formatRelativeDateVI } from '@/utils/format'
-import type { TransactionResponse, FilterType } from '@/services/transactionService'
+import type { TransactionResponse, FilterType, TransactionType } from '@/services/transactionService'
 import {
     TransactionItemSkeleton,
     Skeleton,
 } from '@/components/shared/Skeleton'
 import { NoTransactionsEmptyState } from '../shared/EmptyState'
-import type { TransactionType } from '@/types/category'
 
 const groupByDate = (transactions: TransactionResponse[]) =>
     transactions.reduce<Record<string, TransactionResponse[]>>(

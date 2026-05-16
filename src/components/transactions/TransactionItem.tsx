@@ -15,7 +15,19 @@ export const TransactionItem = ({ transaction, onEdit }: TransactionItemProps) =
     const deleteMutation = useDeleteTransaction()
 
     const isIncome = transaction.type === 'INCOME'
-    const amountStr = `${isIncome ? '+' : '-'} ${formatVND(transaction.amount)}`
+    const isTransfer = transaction.type === 'TRANSFER'
+
+    const content = transaction.note || (isIncome ? 'Thu nhập' : isTransfer ? 'Chuyển đổi' : 'Chi tiêu')
+    const iconClass = isIncome ? 'bg-success-50 text-success-600'
+        : isTransfer ? 'bg-amber-50 text-amber-600'
+            : 'bg-danger-50 text-danger-600'
+    const icon = isIncome ? '↑' : isTransfer ? '⇄' : '↓'
+    const amountClass = isIncome ? 'text-success-600'
+        : isTransfer ? 'text-amber-600'
+            : 'text-danger-600'
+    const amountPrefix = isIncome ? '+' : isTransfer ? '⇄' : '-'
+    const amountFormatted = formatVND(transaction.amount)
+    const amountDisplay = isTransfer ? `${amountFormatted}` : `${amountPrefix}${amountFormatted}`
 
     const handleDelete = async () => {
         if (!confirmDelete) {
@@ -40,15 +52,15 @@ export const TransactionItem = ({ transaction, onEdit }: TransactionItemProps) =
             {/* Icon type */}
             <div className={`
         w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-sm
-        ${isIncome ? 'bg-success-50 text-success-600' : 'bg-danger-50 text-danger-600'}
+        ${iconClass}
       `}>
-                {isIncome ? '↑' : '↓'}
+                {icon}
             </div>
 
             {/* Nội dung */}
             <div className="flex-1 min-w-0">
                 <p className={`${DS.body} truncate`}>
-                    {transaction.note || (isIncome ? 'Thu nhập' : 'Chi tiêu')}
+                    {content}
                 </p>
                 <p className={`${DS.muted} text-xs`}>{transaction.source}</p>
             </div>
@@ -56,9 +68,9 @@ export const TransactionItem = ({ transaction, onEdit }: TransactionItemProps) =
             {/* Số tiền */}
             <span className={`
         text-sm font-semibold shrink-0
-        ${isIncome ? 'text-success-600' : 'text-danger-600'}
+        ${amountClass}
       `}>
-                {amountStr}
+                {amountDisplay}
             </span>
 
             {/* Actions — chỉ hiện khi hover */}

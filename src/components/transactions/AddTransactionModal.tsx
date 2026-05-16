@@ -15,10 +15,9 @@ import { animations } from '@/lib/animations'
 import { CategorySelector } from '@/components/categories/CategorySelector'
 import { PlanGate } from '@/components/shared/PlanGate'
 import { WalletSelector } from '../wallets/WalletSelector'
-// import { WalletSelector } from '@/components/goals/WalletSelector'
 
 const transactionSchema = z.object({
-    type: z.enum(['INCOME', 'EXPENSE']),
+    type: z.enum(['INCOME', 'EXPENSE', 'TRANSFER']),
 
     amount: z
         .string()
@@ -225,26 +224,26 @@ export const AddTransactionModal = ({
                     noValidate
                 >
 
-                    {/* Toggle INCOME / EXPENSE */}
-                    <div className="grid grid-cols-2 gap-2 p-1 bg-surface-muted rounded-lg">
-                        {(['EXPENSE', 'INCOME'] as const).map(type => (
+                    {/* Toggle INCOME / EXPENSE / TRANSFER */}
+                    <div className="grid grid-cols-3 gap-2 p-1 bg-surface-muted rounded-lg">
+                        {(['EXPENSE', 'INCOME', 'TRANSFER'] as const).map(type => (
                             <button
                                 key={type}
                                 type="button"
                                 onClick={() => setValue('type', type)}
                                 className={`
-                                    py-2 rounded-md text-sm font-medium transition-all
-                                    ${selectedType === type
-                                        ? type === 'INCOME'
-                                            ? 'bg-success-500 text-white shadow-sm'
-                                            : 'bg-danger-500 text-white shadow-sm'
+            py-2 rounded-md text-sm font-medium transition-all
+            ${selectedType === type
+                                        ? type === 'INCOME' ? 'bg-success-500 text-white shadow-sm'
+                                            : type === 'TRANSFER' ? 'bg-amber-400 text-white shadow-sm'
+                                                : 'bg-danger-500 text-white shadow-sm'
                                         : 'text-text-secondary hover:text-text-primary'
                                     }
-                                `}
+        `}
                             >
-                                {type === 'INCOME'
-                                    ? '↑ Thu nhập'
-                                    : '↓ Chi tiêu'}
+                                {type === 'INCOME' ? '↑ Thu nhập'
+                                    : type === 'TRANSFER' ? '⇄ Chuyển đổi'
+                                        : '↓ Chi tiêu'}
                             </button>
                         ))}
                     </div>

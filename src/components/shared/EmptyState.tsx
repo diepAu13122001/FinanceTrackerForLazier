@@ -69,7 +69,7 @@ export const NoTransactionsEmptyState = ({
     filter,
 }: {
     onAdd: () => void
-    filter: 'ALL' | 'INCOME' | 'EXPENSE'
+    filter: 'ALL' | 'INCOME' | 'EXPENSE' | 'TRANSFER'
 }) => {
     const configs = {
         ALL: {
@@ -89,6 +89,12 @@ export const NoTransactionsEmptyState = ({
             title: 'Chưa có chi tiêu nào',
             description: 'Thêm khoản chi tiêu để theo dõi dòng tiền ra',
             actionLabel: 'Thêm chi tiêu',
+        },
+        TRANSFER: {
+            icon: '🔄',
+            title: 'Chưa có giao dịch chuyển đổi nào',
+            description: 'Thêm khoản chuyển đổi để theo dõi dòng tiền giữa các ví',
+            actionLabel: 'Thêm chuyển đổi',
         },
     }
 

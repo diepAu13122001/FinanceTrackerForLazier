@@ -3,8 +3,8 @@ import type { WalletResponse } from "./wallet";
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type TransactionType = "INCOME" | "EXPENSE";
-export type FilterType = "ALL" | "INCOME" | "EXPENSE";
+export type TransactionType = "INCOME" | "EXPENSE" | "TRANSFER";
+export type FilterType = "ALL" | "INCOME" | "EXPENSE" | "TRANSFER";
 
 // ─── Request gửi lên API ──────────────────────────────────────────────────────
 
